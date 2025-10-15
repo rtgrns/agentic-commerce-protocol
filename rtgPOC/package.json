@@ -4,11 +4,11 @@
   "description": "Proof of Concept para Agentic Commerce Protocol de OpenAI",
   "main": "server.js",
   "scripts": {
-    "start": "bun run server.js",
-    "dev": "bun --watch server.js",
-    "debug": "bun --inspect server.js",
-    "debug-brk": "bun --inspect-brk server.js",
-    "test": "bun test"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "debug": "node --inspect server.js",
+    "debug-brk": "node --inspect-brk server.js",
+    "test": "node --test"
   },
   "keywords": [
     "agentic-commerce",
