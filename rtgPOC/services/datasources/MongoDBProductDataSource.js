@@ -147,19 +147,33 @@ class MongoDBProductDataSource extends ProductDataSource {
 
   /**
    * Get product by ID
+   * Searches by route (ending with SKU) or direct ID field
    * @param {string} productId
    * @returns {Promise<Object|null>}
    */
   async getProductById(productId) {
     try {
       const collection = this.getCollection();
+
+      // Try multiple search strategies:
+      // 1. Route ends with the product ID (e.g., /product-name/SKU123)
+      // 2. Direct id field match
+      // 3. SKU field match (if exists)
       const product = await collection.findOne(
-        { id: productId },
+        {
+          $or: [
+            { route: new RegExp(`/${productId}$`, "i") }, // Route ends with product ID
+            { id: productId }, // Direct ID field
+            { sku: productId }, // SKU field
+          ],
+        },
         { projection: { _id: 0 } }
       );
 
       if (product) {
-        console.log(`✅ Found product: ${product.name}`);
+        console.log(
+          `✅ Found product: ${product.title || product.name || productId}`
+        );
       } else {
         console.log(`❌ Product not found: ${productId}`);
       }

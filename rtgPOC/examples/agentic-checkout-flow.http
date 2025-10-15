@@ -1,0 +1,191 @@
+###
+### OpenAI Agentic Commerce Protocol - Example Request Flow
+### Complete checkout flow with delegated payment
+###
+
+@baseUrl = http://localhost:3000
+@apiVersion = 2025-09-12
+@delegatedPaymentVersion = 2025-09-29
+
+### 1. Create Checkout Session
+POST {{baseUrl}}/checkout_sessions
+Content-Type: application/json
+API-Version: {{apiVersion}}
+Authorization: Bearer test_api_key_123
+Idempotency-Key: idem_{{$randomInt 1000 9999}}_{{$timestamp}}
+
+{
+  "buyer": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john.doe@example.com",
+    "phone_number": "+1234567890"
+  },
+  "items": [
+    {
+      "id": "1537992P",
+      "quantity": 1
+    }
+  ]
+}
+
+### 2. Update Session - Add Shipping Address
+POST {{baseUrl}}/checkout_sessions/cs_REPLACE_WITH_SESSION_ID
+Content-Type: application/json
+API-Version: {{apiVersion}}
+Authorization: Bearer test_api_key_123
+
+{
+  "fulfillment_address": {
+    "name": "John Doe",
+    "line_one": "123 Main Street",
+    "line_two": "Apt 4B",
+    "city": "New York",
+    "state": "NY",
+    "country": "US",
+    "postal_code": "10001"
+  }
+}
+
+### 3. Update Session - Select Shipping Option
+POST {{baseUrl}}/checkout_sessions/cs_REPLACE_WITH_SESSION_ID
+Content-Type: application/json
+API-Version: {{apiVersion}}
+Authorization: Bearer test_api_key_123
+
+{
+  "fulfillment_option_id": "shipping_standard"
+}
+
+### 4. Tokenize Payment (Delegated Payment)
+POST {{baseUrl}}/agentic_commerce/delegate_payment
+Content-Type: application/json
+API-Version: {{delegatedPaymentVersion}}
+Authorization: Bearer test_api_key_123
+Idempotency-Key: idem_payment_{{$randomInt 1000 9999}}
+
+{
+  "payment_method": {
+    "type": "card",
+    "card_number_type": "fpan",
+    "virtual": false,
+    "number": "4242424242424242",
+    "exp_month": "12",
+    "exp_year": "2026",
+    "name": "John Doe",
+    "cvc": "123",
+    "checks_performed": ["avs", "cvv"],
+    "iin": "424242",
+    "display_card_funding_type": "credit",
+    "display_brand": "visa",
+    "display_last4": "4242",
+    "metadata": {
+      "issuing_bank": "test_bank"
+    }
+  },
+  "allowance": {
+    "reason": "one_time",
+    "max_amount": 600000,
+    "currency": "usd",
+    "checkout_session_id": "cs_REPLACE_WITH_SESSION_ID",
+    "merchant_id": "merchant_rtg",
+    "expires_at": "2025-12-31T23:59:59Z"
+  },
+  "billing_address": {
+    "name": "John Doe",
+    "line_one": "123 Main Street",
+    "line_two": "Apt 4B",
+    "city": "New York",
+    "state": "NY",
+    "country": "US",
+    "postal_code": "10001"
+  },
+  "risk_signals": [
+    {
+      "type": "card_testing",
+      "score": 5,
+      "action": "authorized"
+    }
+  ],
+  "metadata": {
+    "source": "chatgpt",
+    "campaign": "test"
+  }
+}
+
+### 5. Complete Checkout with Delegated Token
+POST {{baseUrl}}/checkout_sessions/cs_REPLACE_WITH_SESSION_ID/complete
+Content-Type: application/json
+API-Version: {{apiVersion}}
+Authorization: Bearer test_api_key_123
+Idempotency-Key: idem_complete_{{$randomInt 1000 9999}}
+
+{
+  "payment_data": {
+    "token": "vt_REPLACE_WITH_VAULT_TOKEN",
+    "provider": "stripe"
+  }
+}
+
+### 6. Get Checkout Session Status
+GET {{baseUrl}}/checkout_sessions/cs_REPLACE_WITH_SESSION_ID
+API-Version: {{apiVersion}}
+Authorization: Bearer test_api_key_123
+
+### 7. Cancel Checkout Session (if needed)
+POST {{baseUrl}}/checkout_sessions/cs_REPLACE_WITH_SESSION_ID/cancel
+Content-Type: application/json
+API-Version: {{apiVersion}}
+Authorization: Bearer test_api_key_123
+
+{}
+
+###
+### Alternative Flow: Complete with Direct Stripe Token
+###
+
+### 8. Complete Checkout with Stripe Token (without delegated payment)
+POST {{baseUrl}}/checkout_sessions/cs_REPLACE_WITH_SESSION_ID/complete
+Content-Type: application/json
+API-Version: {{apiVersion}}
+Authorization: Bearer test_api_key_123
+
+{
+  "payment_data": {
+    "token": "tok_visa",
+    "provider": "stripe"
+  }
+}
+
+###
+### Legacy Endpoints (Deprecated)
+###
+
+### Legacy: Initiate Checkout
+POST {{baseUrl}}/api/checkout/initiate
+Content-Type: application/json
+
+{
+  "product_id": "1537992P",
+  "quantity": 1,
+  "buyer_info": {
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "address": {
+      "street": "123 Main Street",
+      "city": "New York",
+      "country": "USA",
+      "postal_code": "10001"
+    }
+  }
+}
+
+### Legacy: Confirm Checkout
+POST {{baseUrl}}/api/checkout/confirm
+Content-Type: application/json
+
+{
+  "checkout_id": "chk_REPLACE_WITH_ID",
+  "payment_method": "card"
+}
+

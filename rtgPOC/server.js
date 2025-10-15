@@ -10,6 +10,8 @@ const path = require("path");
 const productsRouter = require("./routes/products");
 const checkoutRouter = require("./routes/checkout");
 const webhooksRouter = require("./routes/webhooks");
+const agenticCheckoutRouter = require("./routes/agentic-checkout");
+const delegatedPaymentRouter = require("./routes/delegated-payment");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -39,7 +41,11 @@ app.get("/health", (req, res) => {
   });
 });
 
-// API routes
+// API routes - OpenAI Agentic Commerce Protocol compliant endpoints
+app.use("/checkout_sessions", agenticCheckoutRouter);
+app.use("/agentic_commerce/delegate_payment", delegatedPaymentRouter);
+
+// Legacy API routes (deprecated, kept for backward compatibility)
 app.use("/api/products", productsRouter);
 app.use("/api/checkout", checkoutRouter);
 app.use("/api/webhooks", webhooksRouter);
@@ -65,9 +71,34 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log("\n🚀 ACP POC Server started successfully\n");
   console.log(`📍 Main URLs:`);
-  console.log(`   Health Check:    http://localhost:${PORT}/health`);
-  console.log(`   Product Feed:    http://localhost:${PORT}/api/products/feed`);
-  console.log(`   Web Interface:   http://localhost:${PORT}/test.html`);
+  console.log(`   Health Check:         http://localhost:${PORT}/health`);
+  console.log(
+    `   Product Feed:         http://localhost:${PORT}/api/products/feed`
+  );
+  console.log(`   Web Interface:        http://localhost:${PORT}/test.html`);
+  console.log(`\n📦 Agentic Checkout Endpoints (OpenAI Spec):`);
+  console.log(
+    `   Create Session:       POST http://localhost:${PORT}/checkout_sessions`
+  );
+  console.log(
+    `   Update Session:       POST http://localhost:${PORT}/checkout_sessions/:id`
+  );
+  console.log(
+    `   Complete Checkout:    POST http://localhost:${PORT}/checkout_sessions/:id/complete`
+  );
+  console.log(
+    `   Cancel Session:       POST http://localhost:${PORT}/checkout_sessions/:id/cancel`
+  );
+  console.log(
+    `   Get Session:          GET  http://localhost:${PORT}/checkout_sessions/:id`
+  );
+  console.log(`\n💳 Delegated Payment Endpoint:`);
+  console.log(
+    `   Tokenize Payment:     POST http://localhost:${PORT}/agentic_commerce/delegate_payment`
+  );
+  console.log(`\n⚠️  Legacy Endpoints (deprecated):`);
+  console.log(`   /api/checkout/*`);
   console.log(`\n✨ Agentic Commerce Protocol v1.0`);
-  console.log(`🔧 Merchant ID: ${process.env.MERCHANT_ID}\n`);
+  console.log(`🔧 Merchant ID: ${process.env.MERCHANT_ID}`);
+  console.log(`📋 API Version: ${process.env.API_VERSION || "2025-09-12"}\n`);
 });
