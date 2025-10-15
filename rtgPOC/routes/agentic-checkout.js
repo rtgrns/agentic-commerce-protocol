@@ -9,12 +9,14 @@ const { agenticCommerceMiddleware } = require("../middleware/agentic-commerce");
 const CartStateBuilder = require("../services/CartStateBuilder");
 const WebhookSender = require("../services/WebhookSender");
 const DelegatedTokenManager = require("../services/DelegatedTokenManager");
+const RTGCartService = require("../services/RTGCartService");
 
 // Initialize services
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const cartBuilder = new CartStateBuilder();
 const webhookSender = new WebhookSender();
 const tokenManager = new DelegatedTokenManager();
+const rtgCartService = new RTGCartService();
 
 // Apply middleware
 router.use(agenticCommerceMiddleware());
@@ -47,14 +49,17 @@ function writeData(data) {
  */
 router.post("/", async (req, res) => {
   try {
-    const { buyer, items, fulfillment_address } = req.body;
+    const { buyer, items, fulfillment_address, rtg_cart_id } = req.body;
 
-    // Validation
-    if (!items || !Array.isArray(items) || items.length === 0) {
+    // Validation - Either items OR rtg_cart_id required
+    if (
+      !rtg_cart_id &&
+      (!items || !Array.isArray(items) || items.length === 0)
+    ) {
       return res.status(400).json({
         type: "invalid_request",
         code: "missing_required_field",
-        message: "Required field: items (non-empty array)",
+        message: "Required field: items (non-empty array) OR rtg_cart_id",
       });
     }
 
@@ -73,6 +78,7 @@ router.post("/", async (req, res) => {
       sessionId,
       buyer,
       items,
+      rtgCartId: rtg_cart_id,
       fulfillmentAddress: fulfillment_address,
       fulfillmentOptionId: null,
       region: process.env.DEFAULT_REGION || "FL",
@@ -312,6 +318,20 @@ router.post("/:id/complete", async (req, res) => {
       created_at: new Date().toISOString(),
     };
 
+    // Close RTG cart if this checkout was created from one
+    if (session.rtg_cart_id) {
+      try {
+        await rtgCartService.closeCart(session.rtg_cart_id);
+        console.log(`✅ RTG cart closed: ${session.rtg_cart_id}`);
+        order.rtg_cart_id = session.rtg_cart_id;
+        order.rtg_cart_closed = true;
+      } catch (cartError) {
+        console.error("⚠️  Failed to close RTG cart:", cartError.message);
+        order.rtg_cart_closed = false;
+        order.rtg_cart_close_error = cartError.message;
+      }
+    }
+
     // Store order
     data.orders[orderId] = order;
 
@@ -383,6 +403,18 @@ router.post("/:id/cancel", async (req, res) => {
     if (session.status === "canceled") {
       // Already canceled, return current state
       return res.json(session);
+    }
+
+    // Close RTG cart if this session was created from one
+    if (session.rtg_cart_id) {
+      try {
+        await rtgCartService.closeCart(session.rtg_cart_id);
+        console.log(`✅ RTG cart closed: ${session.rtg_cart_id}`);
+        session.rtg_cart_closed = true;
+      } catch (cartError) {
+        console.error("⚠️  Failed to close RTG cart:", cartError.message);
+        session.rtg_cart_closed = false;
+      }
     }
 
     // Update status

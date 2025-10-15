@@ -1,13 +1,72 @@
 ###
 ### OpenAI Agentic Commerce Protocol - Example Request Flow
-### Complete checkout flow with delegated payment
+### Complete checkout flow with delegated payment and RTG Cart integration
 ###
 
 @baseUrl = http://localhost:3000
+@rtgCartUrl = https://carts.rtg-dev.com
 @apiVersion = 2025-09-12
 @delegatedPaymentVersion = 2025-09-29
 
-### 1. Create Checkout Session
+###
+### ═══════════════════════════════════════════════════════════
+### OPTION A: Using RTG Cart API (Recommended for Production)
+### ═══════════════════════════════════════════════════════════
+###
+
+### 0. Create RTG Cart First
+POST {{rtgCartUrl}}/cart
+Content-Type: application/json
+
+{
+  "lineItems": [
+    {
+      "sku": "1537992P",
+      "quantity": 1,
+      "warrantyEnabled": false,
+      "additionalOptions": {
+        "selections": [],
+        "addons": [],
+        "completeYourSleep": []
+      }
+    }
+  ],
+  "region": "FL",
+  "zone": "0",
+  "distributionIndex": 10,
+  "zipCode": "33101",
+  "type": "online",
+  "source": "desktop-web"
+}
+
+### 0b. Get RTG Cart (to verify it was created)
+GET {{rtgCartUrl}}/cart/REPLACE_WITH_RTG_CART_ID
+Content-Type: application/json
+
+### 1a. Create Checkout Session FROM RTG CART
+POST {{baseUrl}}/checkout_sessions
+Content-Type: application/json
+API-Version: {{apiVersion}}
+Authorization: Bearer test_api_key_123
+Idempotency-Key: idem_{{$randomInt 1000 9999}}_{{$timestamp}}
+
+{
+  "rtg_cart_id": "REPLACE_WITH_RTG_CART_ID",
+  "buyer": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john.doe@example.com",
+    "phone_number": "+1234567890"
+  }
+}
+
+###
+### ═══════════════════════════════════════════════════════════
+### OPTION B: Using Direct Items (Without RTG Cart)
+### ═══════════════════════════════════════════════════════════
+###
+
+### 1b. Create Checkout Session (Direct Items)
 POST {{baseUrl}}/checkout_sessions
 Content-Type: application/json
 API-Version: {{apiVersion}}

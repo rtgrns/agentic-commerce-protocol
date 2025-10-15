@@ -1,12 +1,15 @@
 // Cart State Builder - Transforms items into Agentic Checkout format
 const ProductServiceFactory = require("./ProductServiceFactory");
+const RTGCartService = require("./RTGCartService");
 
 class CartStateBuilder {
   constructor() {
     this.productService = null;
+    this.rtgCartService = new RTGCartService();
     this.taxRate = parseFloat(process.env.DEFAULT_TAX_RATE || "0.08");
     this.currency = (process.env.DEFAULT_CURRENCY || "USD").toLowerCase();
     this.baseUrl = process.env.BASE_URL || "https://www.roomstogo.com";
+    this.useRTGCart = process.env.USE_RTG_CART === "true";
   }
 
   async initialize() {
@@ -88,6 +91,44 @@ class CartStateBuilder {
     }
 
     return { lineItems, errors };
+  }
+
+  /**
+   * Build line items from RTG Cart
+   * @param {string} rtgCartId - RTG Cart ID
+   * @returns {Promise<Object>} Line items and errors
+   */
+  async buildLineItemsFromRTGCart(rtgCartId) {
+    try {
+      // Get cart from RTG Cart API
+      const rtgCart = await this.rtgCartService.getCart(rtgCartId);
+
+      // Transform RTG cart items to OpenAI line items format
+      const lineItems = this.rtgCartService.transformToLineItems(
+        rtgCart,
+        this.taxRate
+      );
+
+      console.log(
+        `✅ Built ${lineItems.length} line items from RTG cart ${rtgCartId}`
+      );
+
+      return { lineItems, errors: [], rtgCart };
+    } catch (error) {
+      console.error("Error building line items from RTG cart:", error);
+      return {
+        lineItems: [],
+        errors: [
+          {
+            type: "error",
+            code: "cart_error",
+            content_type: "plain",
+            content: `Failed to load cart: ${error.message}`,
+          },
+        ],
+        rtgCart: null,
+      };
+    }
   }
 
   /**
@@ -326,13 +367,27 @@ class CartStateBuilder {
     sessionId,
     buyer = null,
     items = [],
+    rtgCartId = null,
     fulfillmentAddress = null,
     fulfillmentOptionId = null,
     existingSession = null,
     region = "FL",
   }) {
-    // Build line items
-    const { lineItems, errors } = await this.buildLineItems(items, region);
+    // Build line items from RTG cart or from items
+    let lineItems, errors, rtgCart;
+
+    if (rtgCartId) {
+      // Use RTG Cart API
+      const result = await this.buildLineItemsFromRTGCart(rtgCartId);
+      lineItems = result.lineItems;
+      errors = result.errors;
+      rtgCart = result.rtgCart;
+    } else {
+      // Build from items directly
+      const result = await this.buildLineItems(items, region);
+      lineItems = result.lineItems;
+      errors = result.errors;
+    }
 
     // Build fulfillment options
     const fulfillmentOptions = fulfillmentAddress
@@ -404,6 +459,13 @@ class CartStateBuilder {
     }
     if (fulfillmentOptionId) {
       session.fulfillment_option_id = fulfillmentOptionId;
+    }
+    if (rtgCartId) {
+      session.rtg_cart_id = rtgCartId;
+      session.rtg_cart_region = rtgCart?.region;
+      session.rtg_cart_zone = rtgCart?.zone;
+      session.rtg_cart_total = rtgCart?.cartTotal;
+      session.rtg_cart_savings = rtgCart?.totalSavings;
     }
 
     return session;
