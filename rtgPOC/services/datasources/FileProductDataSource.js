@@ -10,14 +10,14 @@
  * - Adapter: Adapts file system operations to ProductDataSource interface
  */
 
-const ProductDataSource = require('./ProductDataSource');
-const fs = require('fs');
-const path = require('path');
+const ProductDataSource = require("./ProductDataSource");
+const fs = require("fs");
+const path = require("path");
 
 class FileProductDataSource extends ProductDataSource {
   constructor() {
     super();
-    this.productsPath = path.join(__dirname, '../../data/products.json');
+    this.productsPath = path.join(__dirname, "../../data/products.json");
     this.connected = false;
   }
 
@@ -27,11 +27,11 @@ class FileProductDataSource extends ProductDataSource {
    */
   readProductsFile() {
     try {
-      const data = fs.readFileSync(this.productsPath, 'utf8');
+      const data = fs.readFileSync(this.productsPath, "utf8");
       const parsed = JSON.parse(data);
       return parsed.products || [];
     } catch (error) {
-      console.error('❌ Error reading products file:', error);
+      console.error("❌ Error reading products file:", error);
       throw new Error(`Failed to read products file: ${error.message}`);
     }
   }
@@ -45,9 +45,9 @@ class FileProductDataSource extends ProductDataSource {
         throw new Error(`Products file not found: ${this.productsPath}`);
       }
       this.connected = true;
-      console.log('✅ File-based data source initialized');
+      console.log("✅ File-based data source initialized");
     } catch (error) {
-      console.error('❌ Error initializing file data source:', error);
+      console.error("❌ Error initializing file data source:", error);
       throw error;
     }
   }
@@ -57,7 +57,7 @@ class FileProductDataSource extends ProductDataSource {
    */
   async disconnect() {
     this.connected = false;
-    console.log('🔌 File-based data source disconnected');
+    console.log("🔌 File-based data source disconnected");
   }
 
   /**
@@ -70,7 +70,7 @@ class FileProductDataSource extends ProductDataSource {
       console.log(`📦 Retrieved ${products.length} products from file`);
       return products;
     } catch (error) {
-      console.error('❌ Error fetching products from file:', error);
+      console.error("❌ Error fetching products from file:", error);
       throw error;
     }
   }
@@ -93,7 +93,7 @@ class FileProductDataSource extends ProductDataSource {
 
       return product || null;
     } catch (error) {
-      console.error('❌ Error fetching product by ID:', error);
+      console.error("❌ Error fetching product by ID:", error);
       throw error;
     }
   }
@@ -119,7 +119,7 @@ class FileProductDataSource extends ProductDataSource {
       console.log(`🔍 Search "${query}" found ${results.length} results`);
       return results;
     } catch (error) {
-      console.error('❌ Error searching products:', error);
+      console.error("❌ Error searching products:", error);
       throw error;
     }
   }
@@ -134,7 +134,7 @@ class FileProductDataSource extends ProductDataSource {
       const products = this.readProductsFile();
       return products.some((p) => p.id === productId);
     } catch (error) {
-      console.error('❌ Error checking product existence:', error);
+      console.error("❌ Error checking product existence:", error);
       throw error;
     }
   }
@@ -153,10 +153,12 @@ class FileProductDataSource extends ProductDataSource {
         (product) => product.category.toLowerCase() === lowerCategory
       );
 
-      console.log(`📂 Found ${results.length} products in category: ${category}`);
+      console.log(
+        `📂 Found ${results.length} products in category: ${category}`
+      );
       return results;
     } catch (error) {
-      console.error('❌ Error fetching products by category:', error);
+      console.error("❌ Error fetching products by category:", error);
       throw error;
     }
   }
@@ -176,7 +178,7 @@ class FileProductDataSource extends ProductDataSource {
       }
 
       const isAvailable =
-        product.availability === 'in_stock' &&
+        product.availability === "in_stock" &&
         product.stock_quantity >= quantity;
 
       return {
@@ -184,7 +186,7 @@ class FileProductDataSource extends ProductDataSource {
         stock: product.stock_quantity || 0,
       };
     } catch (error) {
-      console.error('❌ Error checking product availability:', error);
+      console.error("❌ Error checking product availability:", error);
       throw error;
     }
   }
@@ -198,7 +200,7 @@ class FileProductDataSource extends ProductDataSource {
       if (!fs.existsSync(this.productsPath)) {
         return {
           healthy: false,
-          message: 'Products file not found',
+          message: "Products file not found",
         };
       }
 
