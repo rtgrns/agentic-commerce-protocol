@@ -248,9 +248,16 @@ router.post("/confirm", async (req, res) => {
       });
     }
 
-    // Create PaymentIntent with Stripe (simulated for POC)
+    // ⚠️  WARNING: This legacy endpoint only creates a PaymentIntent but doesn't confirm it
+    // The payment will show as "Incomplete" in Stripe dashboard
+    // For proper payment processing, use the new Agentic Checkout endpoint:
+    // POST /checkout_sessions/:id/complete with payment_data.token
+
     let paymentIntent;
+    let paymentStatus = "simulated";
+
     try {
+      // Create PaymentIntent with Stripe
       paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(checkout.breakdown.total * 100), // Convert to cents
         currency: checkout.currency.toLowerCase(),
@@ -263,11 +270,34 @@ router.post("/confirm", async (req, res) => {
           product_id: checkout.product.id,
           merchant_id: process.env.MERCHANT_ID,
         },
+        // Automatically confirm with test token for POC
+        confirm: true,
+        payment_method: "pm_card_visa", // Stripe test payment method
+        return_url: `${process.env.BASE_URL}/orders/${checkout_id}`,
       });
 
-      console.log("💳 PaymentIntent created:", paymentIntent.id);
+      console.log("💳 PaymentIntent created and confirmed:", paymentIntent.id);
+      console.log("   Status:", paymentIntent.status);
+      paymentStatus = paymentIntent.status;
+
+      // Check if payment succeeded
+      if (
+        paymentIntent.status !== "succeeded" &&
+        paymentIntent.status !== "processing"
+      ) {
+        console.warn(
+          "⚠️  Payment not completed. Status:",
+          paymentIntent.status
+        );
+        console.warn(
+          "   This order is marked as confirmed but payment is incomplete in Stripe"
+        );
+      }
     } catch (stripeError) {
       console.error("❌ Stripe error:", stripeError.message);
+      console.warn(
+        "⚠️  Order will be created but payment is NOT processed in Stripe"
+      );
       // In POC, we continue even if Stripe fails (placeholder api key)
     }
 
@@ -291,7 +321,8 @@ router.post("/confirm", async (req, res) => {
       payment: {
         method: payment_method,
         stripe_payment_intent_id: paymentIntent?.id || "pi_test_simulated",
-        status: paymentIntent?.status || "simulated",
+        status: paymentStatus,
+        stripe_status: paymentIntent?.status || "not_processed",
       },
       breakdown: checkout.breakdown,
       total: checkout.breakdown.total,
@@ -338,7 +369,15 @@ router.post("/confirm", async (req, res) => {
       currency: order.currency,
       estimated_delivery: order.estimated_delivery,
       tracking_url: order.tracking_url,
+      payment_status: paymentStatus,
+      stripe_payment_id: paymentIntent?.id || null,
     };
+
+    // Add warning if payment didn't succeed
+    if (paymentStatus !== "succeeded" && paymentStatus !== "processing") {
+      response.warning =
+        "Order created but payment was not completed in Stripe. Please use the new Agentic Checkout endpoint for proper payment processing.";
+    }
 
     res.status(201).json(response);
   } catch (error) {

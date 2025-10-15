@@ -1,368 +1,725 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ACP POC - Test Interface</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 20px;
-      min-height: 100vh;
-    }
-
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      padding: 40px;
-    }
-
-    h1 {
-      color: #333;
-      margin-bottom: 10px;
-      font-size: 32px;
-    }
-
-    .subtitle {
-      color: #666;
-      margin-bottom: 40px;
-      font-size: 16px;
-    }
-
-    .section {
-      margin-bottom: 30px;
-      padding: 20px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      border-left: 4px solid #667eea;
-    }
-
-    .section h2 {
-      color: #333;
-      margin-bottom: 15px;
-      font-size: 20px;
-    }
-
-    .input-group {
-      margin-bottom: 15px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 5px;
-      color: #555;
-      font-weight: 500;
-      font-size: 14px;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #e0e0e0;
-      border-radius: 6px;
-      font-size: 14px;
-      transition: border-color 0.3s;
-    }
-
-    input:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-
-    button {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: 600;
-      transition: transform 0.2s, box-shadow 0.2s;
-      margin-top: 10px;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-
-    button:active {
-      transform: translateY(0);
-    }
-
-    .response-area {
-      margin-top: 20px;
-      padding: 20px;
-      background: #2d3748;
-      color: #e2e8f0;
-      border-radius: 8px;
-      font-family: 'Courier New', monospace;
-      font-size: 13px;
-      max-height: 400px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-
-    .response-area:empty::before {
-      content: 'API responses will appear here...';
-      color: #718096;
-    }
-
-    .loading {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top-color: white;
-      animation: spin 1s ease-in-out infinite;
-      margin-left: 10px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .status-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-left: 10px;
-    }
-
-    .status-success {
-      background: #48bb78;
-      color: white;
-    }
-
-    .status-error {
-      background: #f56565;
-      color: white;
-    }
-
-    .info-box {
-      background: #edf2f7;
-      padding: 15px;
-      border-radius: 6px;
-      margin-bottom: 15px;
-      font-size: 14px;
-      color: #4a5568;
-    }
-
-    .info-box strong {
-      color: #2d3748;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>🛒 Agentic Commerce Protocol</h1>
-    <p class="subtitle">Test interface for ACP POC - OpenAI</p>
-
-    <!-- Section: View Products -->
-    <div class="section">
-      <h2>📦 View Products</h2>
-      <div class="info-box">
-        <strong>Endpoint:</strong> GET /api/products/feed
-      </div>
-      <button onclick="getProducts()">View Product Catalog</button>
-    </div>
-
-    <!-- Section: Initiate Checkout -->
-    <div class="section">
-      <h2>🛍️ Initiate Checkout</h2>
-      <div class="info-box">
-        <strong>Endpoint:</strong> POST /api/checkout/initiate
-      </div>
-      <div class="input-group">
-        <label for="productId">Product ID:</label>
-        <input type="text" id="productId" value="prod_001" placeholder="prod_001">
-      </div>
-      <div class="input-group">
-        <label for="quantity">Quantity:</label>
-        <input type="number" id="quantity" value="1" min="1" placeholder="1">
-      </div>
-      <button onclick="initiateCheckout()">Initiate Checkout</button>
-    </div>
-
-    <!-- Section: Confirm Order -->
-    <div class="section">
-      <h2>💳 Confirm Order</h2>
-      <div class="info-box">
-        <strong>Endpoint:</strong> POST /api/checkout/confirm
-      </div>
-      <div class="input-group">
-        <label for="checkoutId">Checkout ID:</label>
-        <input type="text" id="checkoutId" placeholder="Will be auto-filled after initiating checkout">
-      </div>
-      <button onclick="confirmOrder()">Confirm and Pay</button>
-    </div>
-
-    <!-- Response Area -->
-    <div class="section">
-      <h2>📄 API Response</h2>
-      <div id="response" class="response-area"></div>
-    </div>
-  </div>
-
-  <script>
-    const API_BASE = 'http://localhost:3000';
-    let currentCheckoutId = '';
-
-    // Function to display response
-    function showResponse(data, isError = false) {
-      const responseDiv = document.getElementById('response');
-      const formatted = JSON.stringify(data, null, 2);
-      responseDiv.textContent = formatted;
-
-      // Add status badge
-      const statusBadge = document.createElement('span');
-      statusBadge.className = isError ? 'status-badge status-error' : 'status-badge status-success';
-      statusBadge.textContent = isError ? 'ERROR' : 'SUCCESS';
-      responseDiv.prepend(statusBadge);
-      responseDiv.prepend(document.createTextNode('\n\n'));
-    }
-
-    // Function to show loading
-    function showLoading(buttonElement) {
-      const loading = document.createElement('span');
-      loading.className = 'loading';
-      buttonElement.appendChild(loading);
-      buttonElement.disabled = true;
-    }
-
-    // Function to hide loading
-    function hideLoading(buttonElement) {
-      const loading = buttonElement.querySelector('.loading');
-      if (loading) loading.remove();
-      buttonElement.disabled = false;
-    }
-
-    // View products
-    async function getProducts() {
-      const button = event.target;
-      showLoading(button);
-
-      try {
-        const response = await fetch(`${API_BASE}/api/products/feed`);
-        const data = await response.json();
-
-        if (response.ok) {
-          showResponse(data);
-        } else {
-          showResponse(data, true);
-        }
-      } catch (error) {
-        showResponse({ error: error.message }, true);
-      } finally {
-        hideLoading(button);
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ACP POC - Test Interface</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
       }
-    }
 
-    // Initiate checkout
-    async function initiateCheckout() {
-      const button = event.target;
-      showLoading(button);
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        min-height: 100vh;
+      }
 
-      const productId = document.getElementById('productId').value;
-      const quantity = parseInt(document.getElementById('quantity').value);
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        padding: 40px;
+      }
 
-      // Test buyer data
-      const requestBody = {
-        product_id: productId,
-        quantity: quantity,
-        buyer_info: {
-          name: "John Doe",
-          email: "john.doe@example.com",
-          address: {
-            street: "123 Main Street",
-            city: "New York",
-            country: "USA",
-            postal_code: "10001"
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 32px;
+      }
+
+      .subtitle {
+        color: #666;
+        margin-bottom: 40px;
+        font-size: 16px;
+      }
+
+      .section {
+        margin-bottom: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+      }
+
+      .section h2 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 20px;
+      }
+
+      .input-group {
+        margin-bottom: 15px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        margin-top: 10px;
+        margin-right: 10px;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .response-area {
+        margin-top: 20px;
+        padding: 20px;
+        background: #2d3748;
+        color: #e2e8f0;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        font-size: 13px;
+        max-height: 500px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      .response-area:empty::before {
+        content: "API responses will appear here...";
+        color: #718096;
+      }
+
+      .loading {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+        margin-left: 10px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 10px;
+      }
+
+      .status-success {
+        background: #48bb78;
+        color: white;
+      }
+
+      .status-error {
+        background: #f56565;
+        color: white;
+      }
+
+      .info-box {
+        background: #edf2f7;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        font-size: 14px;
+        color: #4a5568;
+      }
+
+      .info-box strong {
+        color: #2d3748;
+      }
+
+      .product-list {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-top: 15px;
+        padding: 10px;
+        background: white;
+        border-radius: 6px;
+      }
+
+      .product-item {
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .product-item:hover {
+        background: #f7fafc;
+        border-color: #667eea;
+      }
+
+      .product-item.selected {
+        background: #e6f2ff;
+        border-color: #667eea;
+        border-width: 2px;
+      }
+
+      .product-item h4 {
+        margin-bottom: 5px;
+        color: #333;
+      }
+
+      .product-item p {
+        font-size: 12px;
+        color: #666;
+        margin: 3px 0;
+      }
+
+      .flow-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+      }
+
+      .flow-step {
+        flex: 1;
+        text-align: center;
+        position: relative;
+      }
+
+      .flow-step::after {
+        content: "→";
+        position: absolute;
+        right: -20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #cbd5e0;
+        font-size: 24px;
+      }
+
+      .flow-step:last-child::after {
+        display: none;
+      }
+
+      .flow-step.active .step-number {
+        background: #667eea;
+        color: white;
+      }
+
+      .flow-step.completed .step-number {
+        background: #48bb78;
+        color: white;
+      }
+
+      .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        color: #718096;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin: 0 auto 10px;
+      }
+
+      .step-label {
+        font-size: 12px;
+        color: #4a5568;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🛒 Agentic Commerce Protocol</h1>
+      <p class="subtitle">
+        Complete Test Interface - MongoDB Products + Webhooks
+      </p>
+
+      <!-- Flow Indicator -->
+      <div class="flow-indicator">
+        <div class="flow-step" id="step1">
+          <div class="step-number">1</div>
+          <div class="step-label">Browse Products</div>
+        </div>
+        <div class="flow-step" id="step2">
+          <div class="step-number">2</div>
+          <div class="step-label">Initiate Checkout</div>
+        </div>
+        <div class="flow-step" id="step3">
+          <div class="step-number">3</div>
+          <div class="step-label">Confirm Order</div>
+        </div>
+        <div class="flow-step" id="step4">
+          <div class="step-number">4</div>
+          <div class="step-label">Track Status</div>
+        </div>
+      </div>
+
+      <!-- Section 1: View Products -->
+      <div class="section">
+        <h2>📦 Step 1: Browse Products from MongoDB</h2>
+        <div class="info-box">
+          <strong>Endpoint:</strong> GET /api/products/feed<br />
+          <strong>Description:</strong> Fetches real products from MongoDB
+        </div>
+        <button onclick="getProducts()">🔄 Load Products</button>
+        <div id="productList" class="product-list" style="display: none"></div>
+      </div>
+
+      <!-- Section 2: Initiate Checkout -->
+      <div class="section">
+        <h2>🛍️ Step 2: Initiate Checkout</h2>
+        <div class="info-box">
+          <strong>Endpoint:</strong> POST /api/checkout/initiate<br />
+          <strong>Description:</strong> Creates a checkout session with the
+          selected product
+        </div>
+        <div class="input-group">
+          <label for="productId">Product SKU:</label>
+          <input
+            type="text"
+            id="productId"
+            placeholder="Select a product above or enter SKU (e.g., 1537992P)"
+          />
+        </div>
+        <div class="input-group">
+          <label for="quantity">Quantity:</label>
+          <input
+            type="number"
+            id="quantity"
+            value="1"
+            min="1"
+            placeholder="1"
+          />
+        </div>
+        <button onclick="initiateCheckout()">▶️ Initiate Checkout</button>
+      </div>
+
+      <!-- Section 3: Confirm Order -->
+      <div class="section">
+        <h2>💳 Step 3: Confirm Order</h2>
+        <div class="info-box">
+          <strong>Endpoint:</strong> POST /api/checkout/confirm<br />
+          <strong>Description:</strong> Processes payment and sends webhook
+          notification
+        </div>
+        <div class="input-group">
+          <label for="checkoutId">Checkout ID:</label>
+          <input
+            type="text"
+            id="checkoutId"
+            placeholder="Auto-filled after checkout initiation"
+            readonly
+          />
+        </div>
+        <div class="input-group">
+          <label for="paymentMethod">Payment Method:</label>
+          <select id="paymentMethod">
+            <option value="card">Credit Card</option>
+            <option value="apple_pay">Apple Pay</option>
+            <option value="google_pay">Google Pay</option>
+          </select>
+        </div>
+        <button onclick="confirmOrder()">💰 Confirm and Pay</button>
+      </div>
+
+      <!-- Section 4: Order Status & Webhooks -->
+      <div class="section">
+        <h2>📊 Step 4: Track Order & Test Webhooks</h2>
+        <div class="info-box">
+          <strong>Endpoints:</strong> GET /api/checkout/:id/status, POST
+          /api/webhooks/order-updates<br />
+          <strong>Description:</strong> Check order status and simulate webhook
+          events
+        </div>
+        <div class="input-group">
+          <label for="orderId">Order ID:</label>
+          <input
+            type="text"
+            id="orderId"
+            placeholder="Auto-filled after order confirmation"
+            readonly
+          />
+        </div>
+        <button onclick="checkOrderStatus()">🔍 Check Status</button>
+        <button onclick="simulateShipped()">📦 Simulate Shipped</button>
+        <button onclick="simulateDelivered()">✅ Simulate Delivered</button>
+        <button onclick="simulateCancelled()">❌ Simulate Cancelled</button>
+      </div>
+
+      <!-- Response Area -->
+      <div class="section">
+        <h2>📄 API Response</h2>
+        <div id="response" class="response-area"></div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = "http://localhost:3000";
+      let currentCheckoutId = "";
+      let currentOrderId = "";
+      let loadedProducts = [];
+
+      // Flow management
+      function updateFlow(step) {
+        for (let i = 1; i <= 4; i++) {
+          const stepEl = document.getElementById(`step${i}`);
+          stepEl.classList.remove("active", "completed");
+          if (i < step) stepEl.classList.add("completed");
+          if (i === step) stepEl.classList.add("active");
+        }
+      }
+
+      // Function to display response
+      function showResponse(data, isError = false) {
+        const responseDiv = document.getElementById("response");
+        const formatted = JSON.stringify(data, null, 2);
+        responseDiv.textContent = formatted;
+
+        // Add status badge
+        const statusBadge = document.createElement("span");
+        statusBadge.className = isError
+          ? "status-badge status-error"
+          : "status-badge status-success";
+        statusBadge.textContent = isError ? "ERROR" : "SUCCESS";
+        responseDiv.prepend(statusBadge);
+        responseDiv.prepend(document.createTextNode("\n\n"));
+      }
+
+      // Function to show loading
+      function showLoading(buttonElement) {
+        const loading = document.createElement("span");
+        loading.className = "loading";
+        buttonElement.appendChild(loading);
+        buttonElement.disabled = true;
+      }
+
+      // Function to hide loading
+      function hideLoading(buttonElement) {
+        const loading = buttonElement.querySelector(".loading");
+        if (loading) loading.remove();
+        buttonElement.disabled = false;
+      }
+
+      // Step 1: View products
+      async function getProducts() {
+        const button = event.target;
+        showLoading(button);
+        updateFlow(1);
+
+        try {
+          const response = await fetch(`${API_BASE}/api/products/feed`);
+          const data = await response.json();
+
+          if (response.ok) {
+            showResponse(data);
+            loadedProducts = data.products || [];
+            displayProducts(loadedProducts);
+          } else {
+            showResponse(data, true);
           }
+        } catch (error) {
+          showResponse({ error: error.message }, true);
+        } finally {
+          hideLoading(button);
         }
-      };
+      }
 
-      try {
-        const response = await fetch(`${API_BASE}/api/checkout/initiate`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(requestBody)
+      // Display products
+      function displayProducts(products) {
+        const productList = document.getElementById("productList");
+        productList.innerHTML = "";
+        productList.style.display = "block";
+
+        products.slice(0, 10).forEach((product) => {
+          const item = document.createElement("div");
+          item.className = "product-item";
+          item.onclick = () => selectProduct(product.id, item);
+
+          item.innerHTML = `
+          <h4>${product.title || "Untitled"}</h4>
+          <p><strong>SKU:</strong> ${product.id}</p>
+          <p><strong>Price:</strong> $${product.price?.value || 0} ${product.price?.currency || "USD"}</p>
+          <p><strong>Availability:</strong> ${product.availability || "unknown"}</p>
+        `;
+
+          productList.appendChild(item);
         });
+      }
 
-        const data = await response.json();
+      // Select product
+      function selectProduct(productId, element) {
+        // Remove previous selection
+        document
+          .querySelectorAll(".product-item")
+          .forEach((el) => el.classList.remove("selected"));
+        element.classList.add("selected");
 
-        if (response.ok) {
-          // Auto-fill checkout ID
-          currentCheckoutId = data.checkout_id;
-          document.getElementById('checkoutId').value = currentCheckoutId;
-          showResponse(data);
-        } else {
-          showResponse(data, true);
+        // Fill in product ID
+        document.getElementById("productId").value = productId;
+        updateFlow(2);
+      }
+
+      // Step 2: Initiate checkout
+      async function initiateCheckout() {
+        const button = event.target;
+        showLoading(button);
+        updateFlow(2);
+
+        const productId = document.getElementById("productId").value;
+        const quantity = parseInt(document.getElementById("quantity").value);
+
+        if (!productId) {
+          showResponse(
+            { error: "Please select a product or enter a SKU" },
+            true
+          );
+          hideLoading(button);
+          return;
         }
-      } catch (error) {
-        showResponse({ error: error.message }, true);
-      } finally {
-        hideLoading(button);
-      }
-    }
 
-    // Confirm order
-    async function confirmOrder() {
-      const button = event.target;
-      showLoading(button);
-
-      const checkoutId = document.getElementById('checkoutId').value;
-
-      if (!checkoutId) {
-        showResponse({ error: 'Please initiate a checkout first' }, true);
-        hideLoading(button);
-        return;
-      }
-
-      const requestBody = {
-        checkout_id: checkoutId,
-        payment_method: 'card'
-      };
-
-      try {
-        const response = await fetch(`${API_BASE}/api/checkout/confirm`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
+        // Test buyer data
+        const requestBody = {
+          product_id: productId,
+          quantity: quantity,
+          buyer_info: {
+            name: "John Doe",
+            email: "john.doe@example.com",
+            address: {
+              street: "123 Main Street",
+              city: "Miami",
+              state: "FL",
+              country: "USA",
+              postal_code: "33101",
+            },
           },
-          body: JSON.stringify(requestBody)
-        });
+        };
 
-        const data = await response.json();
+        try {
+          const response = await fetch(`${API_BASE}/api/checkout/initiate`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestBody),
+          });
 
-        if (response.ok) {
-          showResponse(data);
-        } else {
-          showResponse(data, true);
+          const data = await response.json();
+
+          if (response.ok) {
+            // Auto-fill checkout ID
+            currentCheckoutId = data.checkout_id;
+            document.getElementById("checkoutId").value = currentCheckoutId;
+            showResponse(data);
+            updateFlow(3);
+          } else {
+            showResponse(data, true);
+          }
+        } catch (error) {
+          showResponse({ error: error.message }, true);
+        } finally {
+          hideLoading(button);
         }
-      } catch (error) {
-        showResponse({ error: error.message }, true);
-      } finally {
+      }
+
+      // Step 3: Confirm order
+      async function confirmOrder() {
+        const button = event.target;
+        showLoading(button);
+
+        const checkoutId = document.getElementById("checkoutId").value;
+        const paymentMethod = document.getElementById("paymentMethod").value;
+
+        if (!checkoutId) {
+          showResponse({ error: "Please initiate a checkout first" }, true);
+          hideLoading(button);
+          return;
+        }
+
+        const requestBody = {
+          checkout_id: checkoutId,
+          payment_method: paymentMethod,
+        };
+
+        try {
+          const response = await fetch(`${API_BASE}/api/checkout/confirm`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestBody),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            currentOrderId = data.order_id;
+            document.getElementById("orderId").value = currentOrderId;
+            showResponse(data);
+            updateFlow(4);
+          } else {
+            showResponse(data, true);
+          }
+        } catch (error) {
+          showResponse({ error: error.message }, true);
+        } finally {
+          hideLoading(button);
+        }
+      }
+
+      // Step 4: Check order status
+      async function checkOrderStatus() {
+        const button = event.target;
+        showLoading(button);
+
+        const orderId = document.getElementById("orderId").value;
+        const checkoutId = document.getElementById("checkoutId").value;
+
+        if (!checkoutId) {
+          showResponse({ error: "No checkout ID available" }, true);
+          hideLoading(button);
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            `${API_BASE}/api/checkout/${checkoutId}/status`
+          );
+          const data = await response.json();
+
+          if (response.ok) {
+            showResponse(data);
+          } else {
+            showResponse(data, true);
+          }
+        } catch (error) {
+          showResponse({ error: error.message }, true);
+        } finally {
+          hideLoading(button);
+        }
+      }
+
+      // Simulate order status changes (webhooks)
+      async function simulateWebhook(eventType) {
+        const orderId = document.getElementById("orderId").value;
+
+        if (!orderId) {
+          showResponse(
+            { error: "No order ID available. Please complete checkout first." },
+            true
+          );
+          return null;
+        }
+
+        const requestBody = {
+          order_id: orderId,
+          event_type: eventType,
+          data:
+            eventType === "shipped"
+              ? {
+                  tracking_number:
+                    "TRK" +
+                    Math.random().toString(36).substr(2, 9).toUpperCase(),
+                }
+              : {},
+        };
+
+        try {
+          const response = await fetch(
+            `${API_BASE}/api/webhooks/order-updates`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(requestBody),
+            }
+          );
+
+          const data = await response.json();
+          showResponse(data, !response.ok);
+          return data;
+        } catch (error) {
+          showResponse({ error: error.message }, true);
+          return null;
+        }
+      }
+
+      async function simulateShipped() {
+        const button = event.target;
+        showLoading(button);
+        await simulateWebhook("shipped");
         hideLoading(button);
       }
-    }
-  </script>
-</body>
+
+      async function simulateDelivered() {
+        const button = event.target;
+        showLoading(button);
+        await simulateWebhook("delivered");
+        hideLoading(button);
+      }
+
+      async function simulateCancelled() {
+        const button = event.target;
+        showLoading(button);
+        await simulateWebhook("cancelled");
+        hideLoading(button);
+      }
+
+      // Initialize
+      updateFlow(1);
+    </script>
+  </body>
 </html>
