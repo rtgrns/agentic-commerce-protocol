@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ACP POC - Test Interface</title>
+    <title>Agentic Checkout - Test Interface</title>
     <style>
       * {
         margin: 0;
@@ -21,7 +21,7 @@
       }
 
       .container {
-        max-width: 1000px;
+        max-width: 1200px;
         margin: 0 auto;
         background: white;
         border-radius: 12px;
@@ -37,8 +37,19 @@
 
       .subtitle {
         color: #666;
-        margin-bottom: 40px;
+        margin-bottom: 30px;
         font-size: 16px;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        background: #48bb78;
+        color: white;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 10px;
       }
 
       .section {
@@ -182,6 +193,13 @@
         color: #2d3748;
       }
 
+      .info-box code {
+        background: #cbd5e0;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 12px;
+      }
+
       .product-list {
         max-height: 300px;
         overflow-y: auto;
@@ -240,7 +258,7 @@
       .flow-step::after {
         content: "→";
         position: absolute;
-        right: -20px;
+        right: -10px;
         top: 50%;
         transform: translateY(-50%);
         color: #cbd5e0;
@@ -278,125 +296,204 @@
         font-size: 12px;
         color: #4a5568;
       }
+
+      .session-info {
+        background: #e6fffa;
+        border: 2px solid #81e6d9;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+      }
+
+      .session-info p {
+        margin: 5px 0;
+        font-size: 14px;
+      }
+
+      .session-info strong {
+        color: #234e52;
+      }
+
+      .session-info code {
+        background: #ffffff;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 12px;
+        color: #2c7a7b;
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>🛒 Agentic Commerce Protocol</h1>
       <p class="subtitle">
-        Complete Test Interface - MongoDB Products + Webhooks
+        OpenAI Spec Compliant Test Interface
+        <span class="badge">PRODUCTION READY</span>
       </p>
 
       <!-- Flow Indicator -->
       <div class="flow-indicator">
         <div class="flow-step" id="step1">
           <div class="step-number">1</div>
-          <div class="step-label">Browse Products</div>
+          <div class="step-label">Products</div>
         </div>
         <div class="flow-step" id="step2">
           <div class="step-number">2</div>
-          <div class="step-label">Initiate Checkout</div>
+          <div class="step-label">Create Session</div>
         </div>
         <div class="flow-step" id="step3">
           <div class="step-number">3</div>
-          <div class="step-label">Confirm Order</div>
+          <div class="step-label">Add Address</div>
         </div>
         <div class="flow-step" id="step4">
           <div class="step-number">4</div>
-          <div class="step-label">Track Status</div>
+          <div class="step-label">Select Shipping</div>
         </div>
+        <div class="flow-step" id="step5">
+          <div class="step-number">5</div>
+          <div class="step-label">Complete</div>
+        </div>
+      </div>
+
+      <!-- Session Info -->
+      <div id="sessionInfo" class="session-info" style="display: none">
+        <p><strong>Session ID:</strong> <code id="currentSessionId">-</code></p>
+        <p><strong>Status:</strong> <code id="currentStatus">-</code></p>
+        <p><strong>Total:</strong> <code id="currentTotal">-</code></p>
       </div>
 
       <!-- Section 1: View Products -->
       <div class="section">
-        <h2>📦 Step 1: Browse Products from MongoDB</h2>
+        <h2>📦 Step 1: Browse Products</h2>
         <div class="info-box">
-          <strong>Endpoint:</strong> GET /api/products/feed<br />
-          <strong>Description:</strong> Fetches real products from MongoDB
+          <strong>Endpoint:</strong> <code>GET /api/products/feed</code><br />
+          <strong>Description:</strong> Fetches OpenAI-compliant product catalog
         </div>
         <button onclick="getProducts()">🔄 Load Products</button>
         <div id="productList" class="product-list" style="display: none"></div>
       </div>
 
-      <!-- Section 2: Initiate Checkout -->
+      <!-- Section 2: Create Checkout Session -->
       <div class="section">
-        <h2>🛍️ Step 2: Initiate Checkout</h2>
+        <h2>🛍️ Step 2: Create Checkout Session</h2>
         <div class="info-box">
-          <strong>Endpoint:</strong> POST /api/checkout/initiate<br />
-          <strong>Description:</strong> Creates a checkout session with the
-          selected product
+          <strong>Endpoint:</strong> <code>POST /checkout_sessions</code><br />
+          <strong>API-Version:</strong> <code>2025-09-12</code><br />
+          <strong>Description:</strong> Creates a new Agentic Checkout session
         </div>
         <div class="input-group">
           <label for="productId">Product SKU:</label>
           <input
             type="text"
             id="productId"
-            placeholder="Select a product above or enter SKU (e.g., 1537992P)"
+            placeholder="Select a product above or enter SKU"
           />
         </div>
         <div class="input-group">
           <label for="quantity">Quantity:</label>
-          <input
-            type="number"
-            id="quantity"
-            value="1"
-            min="1"
-            placeholder="1"
-          />
+          <input type="number" id="quantity" value="1" min="1" />
         </div>
-        <button onclick="initiateCheckout()">▶️ Initiate Checkout</button>
+        <button onclick="createSession()" id="createBtn">
+          ▶️ Create Session
+        </button>
       </div>
 
-      <!-- Section 3: Confirm Order -->
+      <!-- Section 3: Add Shipping Address -->
       <div class="section">
-        <h2>💳 Step 3: Confirm Order</h2>
+        <h2>📍 Step 3: Add Shipping Address</h2>
         <div class="info-box">
-          <strong>Endpoint:</strong> POST /api/checkout/confirm<br />
-          <strong>Description:</strong> Processes payment and sends webhook
-          notification
+          <strong>Endpoint:</strong>
+          <code>POST /checkout_sessions/:id</code><br />
+          <strong>Description:</strong> Update session with shipping address
         </div>
         <div class="input-group">
-          <label for="checkoutId">Checkout ID:</label>
-          <input
-            type="text"
-            id="checkoutId"
-            placeholder="Auto-filled after checkout initiation"
-            readonly
-          />
+          <label for="name">Full Name:</label>
+          <input type="text" id="name" value="John Doe" />
         </div>
         <div class="input-group">
-          <label for="paymentMethod">Payment Method:</label>
-          <select id="paymentMethod">
-            <option value="card">Credit Card</option>
-            <option value="apple_pay">Apple Pay</option>
-            <option value="google_pay">Google Pay</option>
+          <label for="address">Address Line 1:</label>
+          <input type="text" id="address" value="123 Main Street" />
+        </div>
+        <div class="input-group">
+          <label for="city">City:</label>
+          <input type="text" id="city" value="New York" />
+        </div>
+        <div class="input-group">
+          <label for="state">State:</label>
+          <input type="text" id="state" value="NY" />
+        </div>
+        <div class="input-group">
+          <label for="postalCode">Postal Code:</label>
+          <input type="text" id="postalCode" value="10001" />
+        </div>
+        <button onclick="addAddress()" id="addressBtn" disabled>
+          📍 Add Address
+        </button>
+      </div>
+
+      <!-- Section 4: Select Shipping -->
+      <div class="section">
+        <h2>🚚 Step 4: Select Shipping Method</h2>
+        <div class="info-box">
+          <strong>Endpoint:</strong>
+          <code>POST /checkout_sessions/:id</code><br />
+          <strong>Description:</strong> Select shipping option
+        </div>
+        <div class="input-group">
+          <label for="shippingOption">Shipping Method:</label>
+          <select id="shippingOption">
+            <option value="">-- Select Shipping --</option>
+            <option value="shipping_standard">
+              Standard Shipping (5-7 days) - $5.99
+            </option>
+            <option value="shipping_express">
+              Express Shipping (2-3 days) - $19.99
+            </option>
           </select>
         </div>
-        <button onclick="confirmOrder()">💰 Confirm and Pay</button>
+        <button onclick="selectShipping()" id="shippingBtn" disabled>
+          🚚 Select Shipping
+        </button>
       </div>
 
-      <!-- Section 4: Order Status & Webhooks -->
+      <!-- Section 5: Complete Checkout -->
       <div class="section">
-        <h2>📊 Step 4: Track Order & Test Webhooks</h2>
+        <h2>💳 Step 5: Complete Checkout</h2>
         <div class="info-box">
-          <strong>Endpoints:</strong> GET /api/checkout/:id/status, POST
-          /api/webhooks/order-updates<br />
-          <strong>Description:</strong> Check order status and simulate webhook
-          events
+          <strong>Endpoint:</strong>
+          <code>POST /checkout_sessions/:id/complete</code><br />
+          <strong>Description:</strong> Complete checkout with payment
         </div>
         <div class="input-group">
-          <label for="orderId">Order ID:</label>
-          <input
-            type="text"
-            id="orderId"
-            placeholder="Auto-filled after order confirmation"
-            readonly
-          />
+          <label for="paymentToken">Payment Token:</label>
+          <select id="paymentToken">
+            <option value="tok_visa">tok_visa (Test Visa)</option>
+            <option value="tok_mastercard">
+              tok_mastercard (Test Mastercard)
+            </option>
+            <option value="tok_amex">tok_amex (Test Amex)</option>
+          </select>
         </div>
-        <button onclick="checkOrderStatus()">🔍 Check Status</button>
-        <button onclick="simulateShipped()">📦 Simulate Shipped</button>
-        <button onclick="simulateDelivered()">✅ Simulate Delivered</button>
-        <button onclick="simulateCancelled()">❌ Simulate Cancelled</button>
+        <button onclick="completeCheckout()" id="completeBtn" disabled>
+          💰 Complete & Pay
+        </button>
+      </div>
+
+      <!-- Section 6: View Session -->
+      <div class="section">
+        <h2>🔍 View Session & Order</h2>
+        <div class="info-box">
+          <strong>Endpoints:</strong>
+          <code>GET /checkout_sessions/:id</code><br />
+          <strong>Description:</strong> View current session state and order
+          details
+        </div>
+        <button onclick="getSession()" id="getSessionBtn" disabled>
+          🔍 Get Session
+        </button>
+        <button onclick="cancelSession()" id="cancelBtn" disabled>
+          ❌ Cancel Session
+        </button>
       </div>
 
       <!-- Response Area -->
@@ -408,18 +505,67 @@
 
     <script>
       const API_BASE = "http://localhost:3000";
-      let currentCheckoutId = "";
+      const API_VERSION = "2025-09-12";
+
+      let currentSessionId = "";
       let currentOrderId = "";
+      let currentStatus = "";
       let loadedProducts = [];
+
+      // Helper to make API calls with proper headers
+      async function apiCall(endpoint, options = {}) {
+        const headers = {
+          "Content-Type": "application/json",
+          "API-Version": API_VERSION,
+          Authorization: "Bearer test_key_123",
+          "Idempotency-Key": `idem_${Date.now()}_${Math.random()}`,
+          ...options.headers,
+        };
+
+        return fetch(`${API_BASE}${endpoint}`, {
+          ...options,
+          headers,
+        });
+      }
 
       // Flow management
       function updateFlow(step) {
-        for (let i = 1; i <= 4; i++) {
+        for (let i = 1; i <= 5; i++) {
           const stepEl = document.getElementById(`step${i}`);
-          stepEl.classList.remove("active", "completed");
-          if (i < step) stepEl.classList.add("completed");
-          if (i === step) stepEl.classList.add("active");
+          if (stepEl) {
+            stepEl.classList.remove("active", "completed");
+            if (i < step) stepEl.classList.add("completed");
+            if (i === step) stepEl.classList.add("active");
+          }
         }
+      }
+
+      // Update session info display
+      function updateSessionInfo() {
+        const sessionInfo = document.getElementById("sessionInfo");
+        if (currentSessionId) {
+          sessionInfo.style.display = "block";
+          document.getElementById("currentSessionId").textContent =
+            currentSessionId;
+          document.getElementById("currentStatus").textContent =
+            currentStatus || "-";
+        } else {
+          sessionInfo.style.display = "none";
+        }
+      }
+
+      // Enable/disable buttons based on state
+      function updateButtons() {
+        document.getElementById("addressBtn").disabled = !currentSessionId;
+        document.getElementById("shippingBtn").disabled =
+          currentStatus !== "not_ready_for_payment";
+        document.getElementById("completeBtn").disabled =
+          currentStatus !== "ready_for_payment";
+        document.getElementById("getSessionBtn").disabled = !currentSessionId;
+        document.getElementById("cancelBtn").disabled =
+          !currentSessionId ||
+          currentStatus === "completed" ||
+          currentStatus === "canceled";
       }
 
       // Function to display response
@@ -438,7 +584,7 @@
         responseDiv.prepend(document.createTextNode("\n\n"));
       }
 
-      // Function to show loading
+      // Loading state
       function showLoading(buttonElement) {
         const loading = document.createElement("span");
         loading.className = "loading";
@@ -446,14 +592,13 @@
         buttonElement.disabled = true;
       }
 
-      // Function to hide loading
       function hideLoading(buttonElement) {
         const loading = buttonElement.querySelector(".loading");
         if (loading) loading.remove();
         buttonElement.disabled = false;
       }
 
-      // Step 1: View products
+      // Step 1: Get products
       async function getProducts() {
         const button = event.target;
         showLoading(button);
@@ -488,12 +633,15 @@
           item.className = "product-item";
           item.onclick = () => selectProduct(product.id, item);
 
+          const price = product.price?.value || 0;
+          const currency = product.price?.currency || "USD";
+
           item.innerHTML = `
-          <h4>${product.title || "Untitled"}</h4>
-          <p><strong>SKU:</strong> ${product.id}</p>
-          <p><strong>Price:</strong> $${product.price?.value || 0} ${product.price?.currency || "USD"}</p>
-          <p><strong>Availability:</strong> ${product.availability || "unknown"}</p>
-        `;
+            <h4>${product.title || "Untitled"}</h4>
+            <p><strong>SKU:</strong> ${product.id}</p>
+            <p><strong>Price:</strong> $${price} ${currency}</p>
+            <p><strong>Availability:</strong> ${product.availability || "unknown"}</p>
+          `;
 
           productList.appendChild(item);
         });
@@ -501,19 +649,17 @@
 
       // Select product
       function selectProduct(productId, element) {
-        // Remove previous selection
         document
           .querySelectorAll(".product-item")
           .forEach((el) => el.classList.remove("selected"));
         element.classList.add("selected");
 
-        // Fill in product ID
         document.getElementById("productId").value = productId;
         updateFlow(2);
       }
 
-      // Step 2: Initiate checkout
-      async function initiateCheckout() {
+      // Step 2: Create checkout session
+      async function createSession() {
         const button = event.target;
         showLoading(button);
         updateFlow(2);
@@ -522,47 +668,40 @@
         const quantity = parseInt(document.getElementById("quantity").value);
 
         if (!productId) {
-          showResponse(
-            { error: "Please select a product or enter a SKU" },
-            true
-          );
+          showResponse({ error: "Please select a product" }, true);
           hideLoading(button);
           return;
         }
 
-        // Test buyer data
         const requestBody = {
-          product_id: productId,
-          quantity: quantity,
-          buyer_info: {
-            name: "John Doe",
+          buyer: {
+            first_name: "John",
+            last_name: "Doe",
             email: "john.doe@example.com",
-            address: {
-              street: "123 Main Street",
-              city: "Miami",
-              state: "FL",
-              country: "USA",
-              postal_code: "33101",
-            },
+            phone_number: "+1234567890",
           },
+          items: [
+            {
+              id: productId,
+              quantity: quantity,
+            },
+          ],
         };
 
         try {
-          const response = await fetch(`${API_BASE}/api/checkout/initiate`, {
+          const response = await apiCall("/checkout_sessions", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
             body: JSON.stringify(requestBody),
           });
 
           const data = await response.json();
 
           if (response.ok) {
-            // Auto-fill checkout ID
-            currentCheckoutId = data.checkout_id;
-            document.getElementById("checkoutId").value = currentCheckoutId;
+            currentSessionId = data.id;
+            currentStatus = data.status;
             showResponse(data);
+            updateSessionInfo();
+            updateButtons();
             updateFlow(3);
           } else {
             showResponse(data, true);
@@ -574,40 +713,40 @@
         }
       }
 
-      // Step 3: Confirm order
-      async function confirmOrder() {
+      // Step 3: Add shipping address
+      async function addAddress() {
         const button = event.target;
         showLoading(button);
-
-        const checkoutId = document.getElementById("checkoutId").value;
-        const paymentMethod = document.getElementById("paymentMethod").value;
-
-        if (!checkoutId) {
-          showResponse({ error: "Please initiate a checkout first" }, true);
-          hideLoading(button);
-          return;
-        }
+        updateFlow(3);
 
         const requestBody = {
-          checkout_id: checkoutId,
-          payment_method: paymentMethod,
+          fulfillment_address: {
+            name: document.getElementById("name").value,
+            line_one: document.getElementById("address").value,
+            line_two: "",
+            city: document.getElementById("city").value,
+            state: document.getElementById("state").value,
+            country: "US",
+            postal_code: document.getElementById("postalCode").value,
+          },
         };
 
         try {
-          const response = await fetch(`${API_BASE}/api/checkout/confirm`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(requestBody),
-          });
+          const response = await apiCall(
+            `/checkout_sessions/${currentSessionId}`,
+            {
+              method: "POST",
+              body: JSON.stringify(requestBody),
+            }
+          );
 
           const data = await response.json();
 
           if (response.ok) {
-            currentOrderId = data.order_id;
-            document.getElementById("orderId").value = currentOrderId;
+            currentStatus = data.status;
             showResponse(data);
+            updateSessionInfo();
+            updateButtons();
             updateFlow(4);
           } else {
             showResponse(data, true);
@@ -619,28 +758,50 @@
         }
       }
 
-      // Step 4: Check order status
-      async function checkOrderStatus() {
+      // Step 4: Select shipping
+      async function selectShipping() {
         const button = event.target;
         showLoading(button);
+        updateFlow(4);
 
-        const orderId = document.getElementById("orderId").value;
-        const checkoutId = document.getElementById("checkoutId").value;
+        const shippingOption = document.getElementById("shippingOption").value;
 
-        if (!checkoutId) {
-          showResponse({ error: "No checkout ID available" }, true);
+        if (!shippingOption) {
+          showResponse({ error: "Please select a shipping method" }, true);
           hideLoading(button);
           return;
         }
 
+        const requestBody = {
+          fulfillment_option_id: shippingOption,
+        };
+
         try {
-          const response = await fetch(
-            `${API_BASE}/api/checkout/${checkoutId}/status`
+          const response = await apiCall(
+            `/checkout_sessions/${currentSessionId}`,
+            {
+              method: "POST",
+              body: JSON.stringify(requestBody),
+            }
           );
+
           const data = await response.json();
 
           if (response.ok) {
+            currentStatus = data.status;
+
+            // Extract total
+            const totalObj = data.totals?.find((t) => t.type === "total");
+            if (totalObj) {
+              const totalDollars = (totalObj.amount / 100).toFixed(2);
+              document.getElementById("currentTotal").textContent =
+                `$${totalDollars} USD`;
+            }
+
             showResponse(data);
+            updateSessionInfo();
+            updateButtons();
+            updateFlow(5);
           } else {
             showResponse(data, true);
           }
@@ -651,75 +812,140 @@
         }
       }
 
-      // Simulate order status changes (webhooks)
-      async function simulateWebhook(eventType) {
-        const orderId = document.getElementById("orderId").value;
+      // Step 5: Complete checkout
+      async function completeCheckout() {
+        const button = event.target;
+        showLoading(button);
+        updateFlow(5);
 
-        if (!orderId) {
-          showResponse(
-            { error: "No order ID available. Please complete checkout first." },
-            true
-          );
-          return null;
-        }
+        const paymentToken = document.getElementById("paymentToken").value;
 
         const requestBody = {
-          order_id: orderId,
-          event_type: eventType,
-          data:
-            eventType === "shipped"
-              ? {
-                  tracking_number:
-                    "TRK" +
-                    Math.random().toString(36).substr(2, 9).toUpperCase(),
-                }
-              : {},
+          payment_data: {
+            token: paymentToken,
+            provider: "stripe",
+          },
         };
 
         try {
-          const response = await fetch(
-            `${API_BASE}/api/webhooks/order-updates`,
+          const response = await apiCall(
+            `/checkout_sessions/${currentSessionId}/complete`,
             {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
               body: JSON.stringify(requestBody),
             }
           );
 
           const data = await response.json();
-          showResponse(data, !response.ok);
-          return data;
+
+          if (response.ok) {
+            currentStatus = data.status;
+            currentOrderId = data.order?.id || "";
+            showResponse(data);
+            updateSessionInfo();
+            updateButtons();
+
+            // Show success message
+            if (data.order) {
+              setTimeout(() => {
+                alert(
+                  `✅ Order Complete!\n\nOrder ID: ${data.order.id}\nPermalink: ${data.order.permalink_url}`
+                );
+              }, 500);
+            }
+          } else {
+            showResponse(data, true);
+          }
         } catch (error) {
           showResponse({ error: error.message }, true);
-          return null;
+        } finally {
+          hideLoading(button);
         }
       }
 
-      async function simulateShipped() {
+      // Get session status
+      async function getSession() {
         const button = event.target;
         showLoading(button);
-        await simulateWebhook("shipped");
-        hideLoading(button);
+
+        try {
+          const response = await apiCall(
+            `/checkout_sessions/${currentSessionId}`,
+            {
+              method: "GET",
+            }
+          );
+
+          const data = await response.json();
+
+          if (response.ok) {
+            currentStatus = data.status;
+            showResponse(data);
+            updateSessionInfo();
+            updateButtons();
+          } else {
+            showResponse(data, true);
+          }
+        } catch (error) {
+          showResponse({ error: error.message }, true);
+        } finally {
+          hideLoading(button);
+        }
       }
 
-      async function simulateDelivered() {
+      // Cancel session
+      async function cancelSession() {
         const button = event.target;
         showLoading(button);
-        await simulateWebhook("delivered");
-        hideLoading(button);
+
+        if (!confirm("Are you sure you want to cancel this session?")) {
+          hideLoading(button);
+          return;
+        }
+
+        try {
+          const response = await apiCall(
+            `/checkout_sessions/${currentSessionId}/cancel`,
+            {
+              method: "POST",
+              body: JSON.stringify({}),
+            }
+          );
+
+          const data = await response.json();
+
+          if (response.ok) {
+            currentStatus = data.status;
+            showResponse(data);
+            updateSessionInfo();
+            updateButtons();
+            alert("Session canceled");
+          } else {
+            showResponse(data, true);
+          }
+        } catch (error) {
+          showResponse({ error: error.message }, true);
+        } finally {
+          hideLoading(button);
+        }
       }
 
-      async function simulateCancelled() {
-        const button = event.target;
-        showLoading(button);
-        await simulateWebhook("cancelled");
-        hideLoading(button);
+      // Reset function
+      function resetFlow() {
+        currentSessionId = "";
+        currentOrderId = "";
+        currentStatus = "";
+        document.getElementById("productId").value = "";
+        document.getElementById("quantity").value = "1";
+        document.getElementById("shippingOption").value = "";
+        updateSessionInfo();
+        updateButtons();
+        updateFlow(1);
       }
 
       // Initialize
       updateFlow(1);
+      updateButtons();
     </script>
   </body>
 </html>
