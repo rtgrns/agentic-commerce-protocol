@@ -5,23 +5,28 @@
  * 1. Accepts a data source strategy via dependency injection
  * 2. Provides business logic on top of data access
  * 3. Handles caching, validation, and error handling
- * 4. Formats responses according to ACP specification
+ * 4. Formats responses according to OpenAI Commerce Feed Specification
  *
  * Design Patterns:
  * - Facade: Simplifies complex data source operations
  * - Dependency Injection: Data source is injected, not hardcoded
  * - Strategy: Works with any ProductDataSource implementation
+ * - Adapter: Uses OpenAIProductMapper to transform data
  */
+
+const OpenAIProductMapper = require('./mappers/OpenAIProductMapper');
 
 class ProductService {
   /**
    * @param {ProductDataSource} dataSource - The data source strategy to use
+   * @param {Object} config - Optional configuration for the service
    */
-  constructor(dataSource) {
+  constructor(dataSource, config = {}) {
     if (!dataSource) {
       throw new Error('ProductService requires a data source');
     }
     this.dataSource = dataSource;
+    this.mapper = new OpenAIProductMapper(config);
   }
 
   /**
@@ -43,19 +48,18 @@ class ProductService {
   }
 
   /**
-   * Get product feed with metadata (ACP format)
+   * Get product feed with metadata (OpenAI Commerce Feed Specification compliant)
    * @returns {Promise<Object>}
    */
   async getProductFeed() {
-    const products = await this.dataSource.getAllProducts();
+    const containers = await this.dataSource.getAllProducts();
 
-    return {
-      version: '1.0',
-      last_updated: new Date().toISOString(),
-      merchant_id: process.env.MERCHANT_ID || 'merchant_rtg',
-      total_products: products.length,
-      products: products,
-    };
+    // Transform RTG containers to OpenAI Commerce format
+    const feed = this.mapper.transformFeed(containers);
+
+    console.log(`📋 Transformed ${feed.total_products} containers to OpenAI Commerce Feed format`);
+
+    return feed;
   }
 
   /**
