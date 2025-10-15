@@ -34,13 +34,13 @@ class MongoDBProductDataSource extends ProductDataSource {
   }
 
   /**
-   * Create living room product match filter
-   * Filters products based on catalog, category, region availability,
+   * Create living room package match filter
+   * Filters packages based on catalog, category, region availability,
    * and excludes specific product classes and sectionals
    *
    * @returns {Object} MongoDB query filter
    */
-  createLivingRoomProductMatch() {
+  createLivingRoomPackageMatch() {
     const excludedClassesRegex = new RegExp(
       `.*(?:${this.excludedClasses.join("|")}).*`,
       "i"
@@ -95,53 +95,53 @@ class MongoDBProductDataSource extends ProductDataSource {
   }
 
   /**
-   * Get all products (with living room filter applied)
-   * Uses createLivingRoomProductMatch() to filter products
+   * Get all packages (with living room filter applied)
+   * Uses createLivingRoomPackageMatch() to filter packages
    * @returns {Promise<Array>}
    */
   async getAllProducts() {
     try {
       const collection = this.getCollection();
-      const matchFilter = this.createLivingRoomProductMatch();
+      const matchFilter = this.createLivingRoomPackageMatch();
 
-      const products = await collection
+      const packages = await collection
         .find(matchFilter)
         .project({ _id: 0 }) // Exclude MongoDB _id field
         .toArray();
 
       console.log(
-        `📦 Retrieved ${products.length} living room products from MongoDB`
+        `📦 Retrieved ${packages.length} living room packages from MongoDB`
       );
       console.log(
         `🔍 Filters applied: regions=[${this.regions.join(", ")}], excluded classes=[${this.excludedClasses.length}]`
       );
-      return products;
+      return packages;
     } catch (error) {
-      console.error("❌ Error fetching products from MongoDB:", error);
-      throw new Error(`Failed to fetch products: ${error.message}`);
+      console.error("❌ Error fetching packages from MongoDB:", error);
+      throw new Error(`Failed to fetch packages: ${error.message}`);
     }
   }
 
   /**
-   * Get all products without any filters (raw collection data)
+   * Get all packages without any filters (raw collection data)
    * Useful for admin/debugging purposes
    * @returns {Promise<Array>}
    */
   async getAllProductsUnfiltered() {
     try {
       const collection = this.getCollection();
-      const products = await collection.find({}).project({ _id: 0 }).toArray();
+      const packages = await collection.find({}).project({ _id: 0 }).toArray();
 
       console.log(
-        `📦 Retrieved ${products.length} total products (unfiltered) from MongoDB`
+        `📦 Retrieved ${packages.length} total packages (unfiltered) from MongoDB`
       );
-      return products;
+      return packages;
     } catch (error) {
       console.error(
-        "❌ Error fetching unfiltered products from MongoDB:",
+        "❌ Error fetching unfiltered packages from MongoDB:",
         error
       );
-      throw new Error(`Failed to fetch products: ${error.message}`);
+      throw new Error(`Failed to fetch packages: ${error.message}`);
     }
   }
 

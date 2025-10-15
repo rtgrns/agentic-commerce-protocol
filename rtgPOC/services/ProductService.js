@@ -52,12 +52,12 @@ class ProductService {
    * @returns {Promise<Object>}
    */
   async getProductFeed() {
-    const containers = await this.dataSource.getAllProducts();
+    const packages = await this.dataSource.getAllProducts();
 
-    // Transform RTG containers to OpenAI Commerce format
-    const feed = this.mapper.transformFeed(containers);
+    // Transform RTG packages to OpenAI Commerce format
+    const feed = this.mapper.transformFeed(packages);
 
-    console.log(`📋 Transformed ${feed.total_products} containers to OpenAI Commerce Feed format`);
+    console.log(`📋 Transformed ${feed.total_products} packages to OpenAI Commerce Feed format`);
 
     return feed;
   }

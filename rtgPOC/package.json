@@ -6,6 +6,8 @@
   "scripts": {
     "start": "bun run server.js",
     "dev": "bun --watch server.js",
+    "debug": "bun --inspect server.js",
+    "debug-brk": "bun --inspect-brk server.js",
     "test": "bun test"
   },
   "keywords": [

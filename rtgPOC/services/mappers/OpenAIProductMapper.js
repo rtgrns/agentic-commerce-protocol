@@ -1,7 +1,7 @@
 /**
  * OpenAI Commerce Product Feed Mapper
  *
- * Transforms RTG container/product data to OpenAI Commerce Feed Specification
+ * Transforms RTG package/product data to OpenAI Commerce Feed Specification
  * Spec: https://developers.openai.com/commerce/specs/feed
  *
  * Design Pattern: Adapter Pattern
@@ -20,37 +20,37 @@ class OpenAIProductMapper {
   }
 
   /**
-   * Transform a container (room set) to OpenAI product format
-   * @param {Object} container - RTG container from MongoDB
+   * Transform a pkg (room set) to OpenAI product format
+   * @param {Object} pkg - RTG pkg from MongoDB
    * @returns {Object} OpenAI-compliant product object
    */
-  transformContainer(container) {
-    const region = container.region || this.defaultRegion;
+  transformPackage(pkg) {
+    const region = pkg.region || this.defaultRegion;
 
     // Calculate total price for the room set
-    const totalPrice = this.calculateTotalPrice(container, region);
+    const totalPrice = this.calculateTotalPrice(pkg, region);
 
     // Get primary image from first slot item
-    const primaryImage = this.getPrimaryImage(container);
+    const primaryImage = this.getPrimaryImage(pkg);
 
     // Build product title
-    const title = this.buildTitle(container);
+    const title = this.buildTitle(pkg);
 
     // Build description
-    const description = this.buildDescription(container);
+    const description = this.buildDescription(pkg);
 
     // Get product URL
-    const link = this.buildProductUrl(container);
+    const link = this.buildProductUrl(pkg);
 
     // Determine availability
-    const availability = this.determineAvailability(container, region);
+    const availability = this.determineAvailability(pkg, region);
 
     // Build variants (if color/style variations exist)
-    const variants = this.buildVariants(container);
+    const variants = this.buildVariants(pkg);
 
     return {
       // Required fields
-      id: container.container_id || container._id,
+      id: pkg.container_id || pkg._id,
       title: title,
       description: description,
       link: link,
@@ -59,28 +59,28 @@ class OpenAIProductMapper {
         currency: this.currency,
       },
       availability: availability,
-      inventory_quantity: this.getInventoryQuantity(container, region),
+      inventory_quantity: this.getInventoryQuantity(pkg, region),
 
       // Highly recommended fields
       brand: "Rooms To Go",
       image_link: primaryImage,
-      additional_image_links: this.getAdditionalImages(container),
+      additional_image_links: this.getAdditionalImages(pkg),
 
       // Optional but valuable fields
-      product_type: this.getProductType(container),
-      google_product_category: this.getGoogleCategory(container),
+      product_type: this.getProductType(pkg),
+      google_product_category: this.getGoogleCategory(pkg),
       condition: "new",
 
       // Custom attributes
       custom_attributes: {
-        collection: container._collection || "",
-        slot_key: container.slot_key || "",
-        piece_count: container.piece_count || 0,
-        delivery_type: container.delivery_type || "",
+        collection: pkg._collection || "",
+        slot_key: pkg.slot_key || "",
+        piece_count: pkg.piece_count || 0,
+        delivery_type: pkg.delivery_type || "",
         region: region,
-        savings: container.savings?.[region] || 0,
-        catalog: container.catalog || "",
-        category: container.category || "",
+        savings: pkg.savings?.[region] || 0,
+        catalog: pkg.catalog || "",
+        category: pkg.category || "",
       },
 
       // Variants (colors/styles)
@@ -91,24 +91,24 @@ class OpenAIProductMapper {
       enable_checkout: true,
 
       // Metadata
-      updated_at: container.updatedAt || new Date().toISOString(),
+      updated_at: pkg.updatedAt || new Date().toISOString(),
     };
   }
 
   /**
    * Calculate total price for room set
-   * @param {Object} container
+   * @param {Object} pkg
    * @param {string} region
    * @returns {number}
    */
-  calculateTotalPrice(container, region) {
-    if (!container.slots || !Array.isArray(container.slots)) {
+  calculateTotalPrice(pkg, region) {
+    if (!pkg.slots || !Array.isArray(pkg.slots)) {
       return 0;
     }
 
     let totalPrice = 0;
 
-    container.slots.forEach((slot) => {
+    pkg.slots.forEach((slot) => {
       if (slot.filler_skus && Array.isArray(slot.filler_skus)) {
         slot.filler_skus.forEach((filler) => {
           const quantity = filler.quantity || 1;
@@ -122,19 +122,19 @@ class OpenAIProductMapper {
   }
 
   /**
-   * Get primary image for the container
-   * @param {Object} container
+   * Get primary image for the package
+   * @param {Object} pkg
    * @returns {string}
    */
-  getPrimaryImage(container) {
+  getPrimaryImage(pkg) {
     // Try to get from first slot's first item
-    if (container.slots?.[0]?.filler_skus?.[0]?.images?.primary_image) {
-      return container.slots[0].filler_skus[0].images.primary_image;
+    if (pkg.slots?.[0]?.filler_skus?.[0]?.images?.primary_image) {
+      return pkg.slots[0].filler_skus[0].images.primary_image;
     }
 
     // Try to get from first slot's first item image field
-    if (container.slots?.[0]?.filler_skus?.[0]?.image) {
-      return container.slots[0].filler_skus[0].image;
+    if (pkg.slots?.[0]?.filler_skus?.[0]?.image) {
+      return pkg.slots[0].filler_skus[0].image;
     }
 
     return "";
@@ -142,14 +142,14 @@ class OpenAIProductMapper {
 
   /**
    * Get additional images
-   * @param {Object} container
+   * @param {Object} pkg
    * @returns {Array<string>}
    */
-  getAdditionalImages(container) {
+  getAdditionalImages(pkg) {
     const images = [];
 
-    if (container.slots && Array.isArray(container.slots)) {
-      container.slots.forEach((slot) => {
+    if (pkg.slots && Array.isArray(pkg.slots)) {
+      pkg.slots.forEach((slot) => {
         if (slot.filler_skus && Array.isArray(slot.filler_skus)) {
           slot.filler_skus.forEach((filler) => {
             if (
@@ -169,13 +169,13 @@ class OpenAIProductMapper {
 
   /**
    * Build product title
-   * @param {Object} container
+   * @param {Object} pkg
    * @returns {string}
    */
-  buildTitle(container) {
-    const collection = container._collection || "Room Set";
-    const category = container.category || "Furniture";
-    const pieceCount = container.piece_count || 0;
+  buildTitle(pkg) {
+    const collection = pkg._collection || "Room Set";
+    const category = pkg.category || "Furniture";
+    const pieceCount = pkg.piece_count || 0;
 
     // Format: "Belcourt Bedroom 5-Piece Set"
     const formattedCollection = this.capitalize(collection);
@@ -192,21 +192,21 @@ class OpenAIProductMapper {
 
   /**
    * Build product description
-   * @param {Object} container
+   * @param {Object} pkg
    * @returns {string}
    */
-  buildDescription(container) {
-    const collection = this.capitalize(container._collection || "Collection");
-    const category = this.capitalize(container.category || "furniture");
-    const pieceCount = container.piece_count || 0;
-    const region = container.region || this.defaultRegion;
-    const savings = container.savings?.[region] || 0;
+  buildDescription(pkg) {
+    const collection = this.capitalize(pkg._collection || "Collection");
+    const category = this.capitalize(pkg.category || "furniture");
+    const pieceCount = pkg.piece_count || 0;
+    const region = pkg.region || this.defaultRegion;
+    const savings = pkg.savings?.[region] || 0;
 
     let description = `Complete ${pieceCount}-piece ${collection} ${category} set. `;
 
     // Add pieces information
-    if (container.slots && Array.isArray(container.slots)) {
-      const pieces = container.slots
+    if (pkg.slots && Array.isArray(pkg.slots)) {
+      const pieces = pkg.slots
         .map((slot) => {
           const itemCount = slot.filler_skus?.length || 0;
           if (itemCount > 0) {
@@ -224,7 +224,7 @@ class OpenAIProductMapper {
     }
 
     // Add delivery information
-    if (container.delivery_type === "D") {
+    if (pkg.delivery_type === "D") {
       description += `Delivery available. `;
     }
 
@@ -234,7 +234,7 @@ class OpenAIProductMapper {
     }
 
     // Add style/color information from first item
-    const firstItem = container.slots?.[0]?.filler_skus?.[0];
+    const firstItem = pkg.slots?.[0]?.filler_skus?.[0];
     if (firstItem) {
       if (firstItem.color) {
         description += `Available in ${firstItem.color}. `;
@@ -250,33 +250,33 @@ class OpenAIProductMapper {
 
   /**
    * Build product URL
-   * @param {Object} container
+   * @param {Object} pkg
    * @returns {string}
    */
-  buildProductUrl(container) {
+  buildProductUrl(pkg) {
     // Try to get route from first slot item
-    const firstRoute = container.slots?.[0]?.filler_skus?.[0]?.route;
+    const firstRoute = pkg.slots?.[0]?.filler_skus?.[0]?.route;
 
     if (firstRoute) {
       return `${this.baseUrl}${firstRoute}`;
     }
 
-    // Fallback: generate URL from container ID
-    const collection = container._collection || "furniture";
-    const containerId = container.container_id || container._id;
-    return `${this.baseUrl}/${collection}/${containerId}`;
+    // Fallback: generate URL from pkg ID
+    const collection = pkg._collection || "furniture";
+    const pkgId = pkg.container_id || pkg._id;
+    return `${this.baseUrl}/${collection}/${pkgId}`;
   }
 
   /**
    * Determine availability status
-   * @param {Object} container
+   * @param {Object} pkg
    * @param {string} region
    * @returns {string}
    */
-  determineAvailability(container, region) {
+  determineAvailability(pkg, region) {
     // Check if all items are available in the region
-    if (container.slots && Array.isArray(container.slots)) {
-      const allAvailable = container.slots.every((slot) => {
+    if (pkg.slots && Array.isArray(pkg.slots)) {
+      const allAvailable = pkg.slots.every((slot) => {
         if (!slot.filler_skus || !Array.isArray(slot.filler_skus)) {
           return false;
         }
@@ -293,36 +293,36 @@ class OpenAIProductMapper {
 
   /**
    * Get inventory quantity estimate
-   * @param {Object} container
+   * @param {Object} pkg
    * @param {string} region
    * @returns {number}
    */
-  getInventoryQuantity(container, region) {
+  getInventoryQuantity(pkg, region) {
     // For room sets, we'll return a conservative estimate
     // In a real scenario, this would query actual inventory
     const isAvailable =
-      this.determineAvailability(container, region) === "in_stock";
+      this.determineAvailability(pkg, region) === "in_stock";
     return isAvailable ? 5 : 0; // Conservative stock estimate
   }
 
   /**
    * Get product type
-   * @param {Object} container
+   * @param {Object} pkg
    * @returns {string}
    */
-  getProductType(container) {
-    const category = this.capitalize(container.category || "Furniture");
-    const pieceCount = container.piece_count || 0;
+  getProductType(pkg) {
+    const category = this.capitalize(pkg.category || "Furniture");
+    const pieceCount = pkg.piece_count || 0;
     return `${category} > ${pieceCount}-Piece Set`;
   }
 
   /**
    * Get Google product category
-   * @param {Object} container
+   * @param {Object} pkg
    * @returns {string}
    */
-  getGoogleCategory(container) {
-    const category = container.category?.toLowerCase() || "";
+  getGoogleCategory(pkg) {
+    const category = pkg.category?.toLowerCase() || "";
 
     // Map to Google product taxonomy
     const categoryMap = {
@@ -337,17 +337,17 @@ class OpenAIProductMapper {
 
   /**
    * Build product variants (different colors/styles)
-   * @param {Object} container
+   * @param {Object} pkg
    * @returns {Array}
    */
-  buildVariants(container) {
+  buildVariants(pkg) {
     const variants = [];
 
     if (
-      container.slots?.[0]?.filler_skus &&
-      container.slots[0].filler_skus.length > 1
+      pkg.slots?.[0]?.filler_skus &&
+      pkg.slots[0].filler_skus.length > 1
     ) {
-      container.slots[0].filler_skus.forEach((filler, index) => {
+      pkg.slots[0].filler_skus.forEach((filler, index) => {
         if (index > 0 && filler.color) {
           // Skip first as it's the main product
           variants.push({
@@ -356,7 +356,7 @@ class OpenAIProductMapper {
             image_link: filler.images?.primary_image || filler.image,
             price: {
               value:
-                filler.price?.[container.region || this.defaultRegion]?.[
+                filler.price?.[pkg.region || this.defaultRegion]?.[
                   "0_sale_price"
                 ] || 0,
               currency: this.currency,
@@ -383,13 +383,13 @@ class OpenAIProductMapper {
   }
 
   /**
-   * Transform array of containers to OpenAI product feed
-   * @param {Array} containers
+   * Transform array of packages to OpenAI product feed
+   * @param {Array} packages
    * @returns {Object} Complete feed structure
    */
-  transformFeed(containers) {
-    const products = containers.map((container) =>
-      this.transformContainer(container)
+  transformFeed(packages) {
+    const products = packages.map((pkg) =>
+      this.transformPackage(pkg)
     );
 
     return {
