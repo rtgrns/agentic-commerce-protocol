@@ -1,49 +1,68 @@
 // Products API - Product Feed
 const express = require('express');
 const router = express.Router();
-const fs = require('fs');
-const path = require('path');
+const ProductServiceFactory = require('../services/ProductServiceFactory');
 
-// Helper function to read products
-function readProducts() {
-  const productsPath = path.join(__dirname, '../data/products.json');
-  const data = fs.readFileSync(productsPath, 'utf8');
-  return JSON.parse(data);
-}
+// Initialize ProductService (will be set on first request or in server.js)
+let productService = null;
 
-// Helper function to get a specific product
-function getProduct(productId) {
-  const { products } = readProducts();
-  return products.find(p => p.id === productId);
+// Lazy initialization of product service
+async function getProductService() {
+  if (!productService) {
+    console.log('🔄 Initializing ProductService...');
+    productService = await ProductServiceFactory.createAndInitialize();
+  }
+  return productService;
 }
 
 // GET /api/products/feed - Get complete catalog
-router.get('/feed', (req, res) => {
+router.get('/feed', async (req, res) => {
   try {
-    const data = readProducts();
+    const service = await getProductService();
+    const productFeed = await service.getProductFeed();
 
-    const response = {
-      version: '1.0',
-      last_updated: new Date().toISOString(),
-      merchant_id: process.env.MERCHANT_ID,
-      products: data.products
-    };
-
-    console.log('✅ Product feed requested - Total products:', data.products.length);
-    res.json(response);
+    console.log('✅ Product feed requested - Total products:', productFeed.total_products);
+    res.json(productFeed);
   } catch (error) {
     console.error('❌ Error getting product feed:', error);
     res.status(500).json({
-      error: 'Error retrieving product catalog'
+      error: 'Error retrieving product catalog',
+      details: error.message
+    });
+  }
+});
+
+// GET /api/products/search?q=query - Search products (must come before /:id)
+router.get('/search', async (req, res) => {
+  try {
+    const query = req.query.q || '';
+
+    if (!query) {
+      return res.status(400).json({
+        error: 'Search parameter "q" required'
+      });
+    }
+
+    const service = await getProductService();
+    const searchResults = await service.searchProducts(query);
+
+    console.log(`✅ Search: "${query}" - ${searchResults.count} results`);
+    res.json(searchResults);
+  } catch (error) {
+    console.error('❌ Search error:', error);
+    res.status(500).json({
+      error: 'Error searching products',
+      details: error.message
     });
   }
 });
 
 // GET /api/products/:id - Get specific product
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const productId = req.params.id;
-    const product = getProduct(productId);
+    const service = await getProductService();
+    const product = await service.getProductById(productId);
 
     if (!product) {
       console.log('❌ Product not found:', productId);
@@ -58,43 +77,49 @@ router.get('/:id', (req, res) => {
   } catch (error) {
     console.error('❌ Error getting product:', error);
     res.status(500).json({
-      error: 'Error retrieving product'
+      error: 'Error retrieving product',
+      details: error.message
     });
   }
 });
 
-// GET /api/products/search?q=query - Search products
-router.get('/search', (req, res) => {
+// GET /api/products/category/:category - Get products by category
+router.get('/category/:category', async (req, res) => {
   try {
-    const query = req.query.q?.toLowerCase() || '';
+    const category = req.params.category;
+    const service = await getProductService();
+    const products = await service.getProductsByCategory(category);
 
-    if (!query) {
-      return res.status(400).json({
-        error: 'Search parameter "q" required'
-      });
-    }
-
-    const { products } = readProducts();
-
-    // Search in name and description (case insensitive)
-    const results = products.filter(product =>
-      product.name.toLowerCase().includes(query) ||
-      product.description.toLowerCase().includes(query) ||
-      product.category.toLowerCase().includes(query) ||
-      product.brand.toLowerCase().includes(query)
-    );
-
-    console.log(`✅ Search: "${query}" - ${results.length} results`);
-
+    console.log(`✅ Found ${products.length} products in category: ${category}`);
     res.json({
-      query,
-      count: results.length,
-      results
+      category,
+      count: products.length,
+      products
     });
   } catch (error) {
-    console.error('❌ Search error:', error);
+    console.error('❌ Error getting products by category:', error);
     res.status(500).json({
-      error: 'Error searching products'
+      error: 'Error retrieving products by category',
+      details: error.message
+    });
+  }
+});
+
+// GET /api/products/health - Health check endpoint
+router.get('/health', async (req, res) => {
+  try {
+    const service = await getProductService();
+    const health = await service.getHealthStatus();
+
+    const statusCode = health.status === 'healthy' ? 200 : 503;
+    res.status(statusCode).json(health);
+  } catch (error) {
+    console.error('❌ Health check error:', error);
+    res.status(503).json({
+      service: 'ProductService',
+      status: 'unhealthy',
+      error: error.message,
+      timestamp: new Date().toISOString()
     });
   }
 });

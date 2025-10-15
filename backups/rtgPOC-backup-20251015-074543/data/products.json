@@ -1,0 +1,40 @@
+{
+  "products": [
+    {
+      "id": "prod_001",
+      "name": "Auriculares Bluetooth Pro",
+      "description": "Auriculares inalámbricos con cancelación de ruido activa",
+      "price": 79.99,
+      "currency": "USD",
+      "availability": "in_stock",
+      "stock_quantity": 50,
+      "images": ["https://example.com/headphones.jpg"],
+      "category": "Electrónica",
+      "brand": "TechPro"
+    },
+    {
+      "id": "prod_002",
+      "name": "Mochila Deportiva",
+      "description": "Mochila resistente al agua con múltiples compartimentos",
+      "price": 45.00,
+      "currency": "USD",
+      "availability": "in_stock",
+      "stock_quantity": 30,
+      "images": ["https://example.com/backpack.jpg"],
+      "category": "Deportes",
+      "brand": "SportGear"
+    },
+    {
+      "id": "prod_003",
+      "name": "Teclado Mecánico RGB",
+      "description": "Teclado mecánico gaming con iluminación RGB personalizable",
+      "price": 129.99,
+      "currency": "USD",
+      "availability": "in_stock",
+      "stock_quantity": 15,
+      "images": ["https://example.com/keyboard.jpg"],
+      "category": "Electrónica",
+      "brand": "GameMaster"
+    }
+  ]
+}
