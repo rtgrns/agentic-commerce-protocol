@@ -20,50 +20,41 @@ class OpenAIProductMapper {
   }
 
   /**
-   * Transform a pkg (room set) to OpenAI product format
-   * @param {Object} pkg - RTG pkg from MongoDB
+   * Transform a package (room set) to OpenAI product format
+   * @param {Object} pkg - RTG package from MongoDB
    * @returns {Object} OpenAI-compliant product object
    */
   transformPackage(pkg) {
     const region = pkg.region || this.defaultRegion;
 
-    // Calculate total price for the room set
-    const totalPrice = this.calculateTotalPrice(pkg, region);
+    // Extract SKU from route or use a generated ID
+    const productId = this.extractProductId(pkg);
 
-    // Get primary image from first slot item
-    const primaryImage = this.getPrimaryImage(pkg);
-
-    // Build product title
-    const title = this.buildTitle(pkg);
-
-    // Build description
-    const description = this.buildDescription(pkg);
-
-    // Get product URL
-    const link = this.buildProductUrl(pkg);
+    // Get pricing for the region
+    const price = this.getPrice(pkg, region);
 
     // Determine availability
     const availability = this.determineAvailability(pkg, region);
 
-    // Build variants (if color/style variations exist)
-    const variants = this.buildVariants(pkg);
+    // Build variants (color variations)
+    const variants = this.buildVariants(pkg, region);
 
     return {
       // Required fields
-      id: pkg.container_id || pkg._id,
-      title: title,
-      description: description,
-      link: link,
+      id: productId,
+      title: pkg.title || "Untitled Product",
+      description: pkg.description || this.buildDescription(pkg),
+      link: this.buildProductUrl(pkg),
       price: {
-        value: totalPrice,
+        value: price.sale_price || price.list_price,
         currency: this.currency,
       },
       availability: availability,
       inventory_quantity: this.getInventoryQuantity(pkg, region),
 
       // Highly recommended fields
-      brand: "Rooms To Go",
-      image_link: primaryImage,
+      brand: pkg.brand ? this.capitalize(pkg.brand) : "Rooms To Go",
+      image_link: pkg.primary_image || pkg.grid_image || "",
       additional_image_links: this.getAdditionalImages(pkg),
 
       // Optional but valuable fields
@@ -74,13 +65,18 @@ class OpenAIProductMapper {
       // Custom attributes
       custom_attributes: {
         collection: pkg._collection || "",
-        slot_key: pkg.slot_key || "",
-        piece_count: pkg.piece_count || 0,
+        piece_count: pkg.piececount || 0,
         delivery_type: pkg.delivery_type || "",
         region: region,
-        savings: pkg.savings?.[region] || 0,
         catalog: pkg.catalog || "",
         category: pkg.category || "",
+        mpn: pkg.mpn || "",
+        room_type_code: pkg.room_type_code || "",
+        colors: pkg.color?.join(", ") || "",
+        materials: pkg.material?.join(", ") || "",
+        decor: pkg.decor?.join(", ") || "",
+        on_sale: pkg.on_sale?.[`${region}_0`] || false,
+        vendor_id: pkg.vendorId || "",
       },
 
       // Variants (colors/styles)
@@ -91,53 +87,45 @@ class OpenAIProductMapper {
       enable_checkout: true,
 
       // Metadata
-      updated_at: pkg.updatedAt || new Date().toISOString(),
+      updated_at: pkg.lastModified || pkg.createdAt || new Date().toISOString(),
     };
   }
 
   /**
-   * Calculate total price for room set
-   * @param {Object} pkg
-   * @param {string} region
-   * @returns {number}
-   */
-  calculateTotalPrice(pkg, region) {
-    if (!pkg.slots || !Array.isArray(pkg.slots)) {
-      return 0;
-    }
-
-    let totalPrice = 0;
-
-    pkg.slots.forEach((slot) => {
-      if (slot.filler_skus && Array.isArray(slot.filler_skus)) {
-        slot.filler_skus.forEach((filler) => {
-          const quantity = filler.quantity || 1;
-          const price = filler.price?.[region]?.["0_sale_price"] || 0;
-          totalPrice += price * quantity;
-        });
-      }
-    });
-
-    return parseFloat(totalPrice.toFixed(2));
-  }
-
-  /**
-   * Get primary image for the package
+   * Extract product ID from route or use SKU
    * @param {Object} pkg
    * @returns {string}
    */
-  getPrimaryImage(pkg) {
-    // Try to get from first slot's first item
-    if (pkg.slots?.[0]?.filler_skus?.[0]?.images?.primary_image) {
-      return pkg.slots[0].filler_skus[0].images.primary_image;
+  extractProductId(pkg) {
+    if (pkg.route) {
+      // Extract SKU from route: "/product-name/SKU123"
+      const parts = pkg.route.split("/");
+      return parts[parts.length - 1] || pkg.route;
+    }
+    return pkg._id || pkg.sku || `product_${Date.now()}`;
+  }
+
+  /**
+   * Get price for a specific region
+   * @param {Object} pkg
+   * @param {string} region
+   * @returns {Object} { list_price, sale_price }
+   */
+  getPrice(pkg, region) {
+    if (!pkg.pricing) {
+      return { list_price: 0, sale_price: 0 };
     }
 
-    // Try to get from first slot's first item image field
-    if (pkg.slots?.[0]?.filler_skus?.[0]?.image) {
-      return pkg.slots[0].filler_skus[0].image;
-    }
+    // Try region-specific pricing first (e.g., FL_0_sale_price)
+    const salePrice =
+      pkg.pricing[`${region}_0_sale_price`] || pkg.pricing.default_price || 0;
+    const listPrice =
+      pkg.pricing[`${region}_0_list_price`] || pkg.pricing.default_price || 0;
 
-    return "";
+    return {
+      list_price: parseFloat(listPrice),
+      sale_price: parseFloat(salePrice),
+    };
   }
 
   /**
@@ -148,19 +136,19 @@ class OpenAIProductMapper {
   getAdditionalImages(pkg) {
     const images = [];
 
-    if (pkg.slots && Array.isArray(pkg.slots)) {
-      pkg.slots.forEach((slot) => {
-        if (slot.filler_skus && Array.isArray(slot.filler_skus)) {
-          slot.filler_skus.forEach((filler) => {
-            if (
-              filler.images?.alternate_images &&
-              Array.isArray(filler.images.alternate_images)
-            ) {
-              images.push(...filler.images.alternate_images);
-            }
-          });
-        }
-      });
+    // Add alternate images
+    if (pkg.alternate_images && Array.isArray(pkg.alternate_images)) {
+      images.push(...pkg.alternate_images);
+    }
+
+    // Add high res image if different from primary
+    if (pkg.high_res_image && pkg.high_res_image !== pkg.primary_image) {
+      images.push(pkg.high_res_image);
+    }
+
+    // Add logo image if present
+    if (pkg.logo_image) {
+      images.push(pkg.logo_image);
     }
 
     // Return unique images, limit to first 10
@@ -168,58 +156,34 @@ class OpenAIProductMapper {
   }
 
   /**
-   * Build product title
-   * @param {Object} pkg
-   * @returns {string}
-   */
-  buildTitle(pkg) {
-    const collection = pkg._collection || "Room Set";
-    const category = pkg.category || "Furniture";
-    const pieceCount = pkg.piece_count || 0;
-
-    // Format: "Belcourt Bedroom 5-Piece Set"
-    const formattedCollection = this.capitalize(collection);
-    const formattedCategory = this.capitalize(category);
-
-    let title = `${formattedCollection} ${formattedCategory}`;
-    if (pieceCount > 0) {
-      title += ` ${pieceCount}-Piece Set`;
-    }
-
-    // Truncate to 150 characters per OpenAI spec
-    return title.substring(0, 150);
-  }
-
-  /**
-   * Build product description
+   * Build product description (if not provided)
    * @param {Object} pkg
    * @returns {string}
    */
   buildDescription(pkg) {
     const collection = this.capitalize(pkg._collection || "Collection");
     const category = this.capitalize(pkg.category || "furniture");
-    const pieceCount = pkg.piece_count || 0;
-    const region = pkg.region || this.defaultRegion;
-    const savings = pkg.savings?.[region] || 0;
+    const pieceCount = pkg.piececount || 0;
 
     let description = `Complete ${pieceCount}-piece ${collection} ${category} set. `;
 
-    // Add pieces information
-    if (pkg.slots && Array.isArray(pkg.slots)) {
-      const pieces = pkg.slots
-        .map((slot) => {
-          const itemCount = slot.filler_skus?.length || 0;
-          if (itemCount > 0) {
-            const itemName =
-              slot.filler_skus[0]?.gen_name || slot.sub_category || "";
-            return itemCount > 1 ? `${itemCount} ${itemName}s` : itemName;
-          }
-          return slot.sub_category || "";
-        })
-        .filter(Boolean);
+    // Add items in room
+    if (pkg.items_in_room) {
+      const region = pkg.region || this.defaultRegion;
+      const items = pkg.items_in_room[region];
 
-      if (pieces.length > 0) {
-        description += `Includes: ${pieces.join(", ")}. `;
+      if (items && Array.isArray(items)) {
+        const itemNames = items
+          .map((item) => {
+            const qty = item.quantity || 1;
+            const name = item.generic_name || item.title || "";
+            return qty > 1 ? `${qty} ${name}s` : name;
+          })
+          .filter(Boolean);
+
+        if (itemNames.length > 0) {
+          description += `Includes: ${itemNames.join(", ")}. `;
+        }
       }
     }
 
@@ -228,20 +192,18 @@ class OpenAIProductMapper {
       description += `Delivery available. `;
     }
 
-    // Add savings information
-    if (savings > 0) {
-      description += `Save $${savings.toFixed(2)} on this set! `;
+    // Add material/color information
+    if (pkg.material && pkg.material.length > 0) {
+      description += `Material: ${pkg.material.join(", ")}. `;
     }
 
-    // Add style/color information from first item
-    const firstItem = pkg.slots?.[0]?.filler_skus?.[0];
-    if (firstItem) {
-      if (firstItem.color) {
-        description += `Available in ${firstItem.color}. `;
-      }
-      if (firstItem.additional_properties?.style) {
-        description += `Style: ${firstItem.additional_properties.style}. `;
-      }
+    if (pkg.color && pkg.color.length > 0) {
+      description += `Available in ${pkg.color.join(", ")}. `;
+    }
+
+    // Add decor style
+    if (pkg.decor && pkg.decor.length > 0) {
+      description += `Style: ${pkg.decor.join(", ")}. `;
     }
 
     // Truncate to 5000 characters per OpenAI spec
@@ -254,17 +216,26 @@ class OpenAIProductMapper {
    * @returns {string}
    */
   buildProductUrl(pkg) {
-    // Try to get route from first slot item
-    const firstRoute = pkg.slots?.[0]?.filler_skus?.[0]?.route;
-
-    if (firstRoute) {
-      return `${this.baseUrl}${firstRoute}`;
+    if (pkg.route) {
+      return `${this.baseUrl}${pkg.route}`;
     }
 
-    // Fallback: generate URL from pkg ID
-    const collection = pkg._collection || "furniture";
-    const pkgId = pkg.container_id || pkg._id;
-    return `${this.baseUrl}/${collection}/${pkgId}`;
+    // Fallback: generate URL from title slug
+    const slug = pkg.title_slug || this.slugify(pkg.title || "product");
+    const productId = this.extractProductId(pkg);
+    return `${this.baseUrl}/${slug}/${productId}`;
+  }
+
+  /**
+   * Create URL-friendly slug
+   * @param {string} text
+   * @returns {string}
+   */
+  slugify(text) {
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
   }
 
   /**
@@ -274,18 +245,17 @@ class OpenAIProductMapper {
    * @returns {string}
    */
   determineAvailability(pkg, region) {
-    // Check if all items are available in the region
-    if (pkg.slots && Array.isArray(pkg.slots)) {
-      const allAvailable = pkg.slots.every((slot) => {
-        if (!slot.filler_skus || !Array.isArray(slot.filler_skus)) {
-          return false;
-        }
-        return slot.filler_skus.every((filler) => {
-          return filler.catalog_availability?.[region] === true;
-        });
-      });
+    if (pkg.catalog_availability && pkg.catalog_availability[region]) {
+      return "in_stock";
+    }
 
-      return allAvailable ? "in_stock" : "out_of_stock";
+    // Check warehouse availability
+    if (pkg.warehouseAvailability && pkg.warehouseAvailability[region]) {
+      const warehouse = pkg.warehouseAvailability[region];
+      if (warehouse.isAvailable || warehouse.dotcomAvailable) {
+        return "in_stock";
+      }
+      return "preorder"; // Available but not in stock
     }
 
     return "out_of_stock";
@@ -298,11 +268,15 @@ class OpenAIProductMapper {
    * @returns {number}
    */
   getInventoryQuantity(pkg, region) {
-    // For room sets, we'll return a conservative estimate
-    // In a real scenario, this would query actual inventory
-    const isAvailable =
-      this.determineAvailability(pkg, region) === "in_stock";
-    return isAvailable ? 5 : 0; // Conservative stock estimate
+    const availability = this.determineAvailability(pkg, region);
+
+    if (availability === "in_stock") {
+      return 5; // Conservative estimate
+    } else if (availability === "preorder") {
+      return 0; // Not currently in stock
+    }
+
+    return 0;
   }
 
   /**
@@ -312,8 +286,14 @@ class OpenAIProductMapper {
    */
   getProductType(pkg) {
     const category = this.capitalize(pkg.category || "Furniture");
-    const pieceCount = pkg.piece_count || 0;
-    return `${category} > ${pieceCount}-Piece Set`;
+    const pieceCount = pkg.piececount || 0;
+    const type = pkg.type ? this.capitalize(pkg.type) : "";
+
+    if (pieceCount > 0) {
+      return `${category} > ${type} ${pieceCount}-Piece Set`.trim();
+    }
+
+    return `${category} > ${type}`.trim();
   }
 
   /**
@@ -328,8 +308,12 @@ class OpenAIProductMapper {
     const categoryMap = {
       bedroom: "Furniture > Bedroom Furniture",
       livingroom: "Furniture > Living Room Furniture",
+      "living room": "Furniture > Living Room Furniture",
       dining: "Furniture > Dining Room Furniture",
       office: "Furniture > Office Furniture",
+      tables: "Furniture > Tables",
+      lighting: "Home & Garden > Lighting",
+      accessories: "Home & Garden > Decor",
     };
 
     return categoryMap[category] || "Furniture";
@@ -338,33 +322,37 @@ class OpenAIProductMapper {
   /**
    * Build product variants (different colors/styles)
    * @param {Object} pkg
+   * @param {string} region
    * @returns {Array}
    */
-  buildVariants(pkg) {
+  buildVariants(pkg, region) {
     const variants = [];
 
-    if (
-      pkg.slots?.[0]?.filler_skus &&
-      pkg.slots[0].filler_skus.length > 1
-    ) {
-      pkg.slots[0].filler_skus.forEach((filler, index) => {
-        if (index > 0 && filler.color) {
-          // Skip first as it's the main product
-          variants.push({
-            id: filler.sku,
-            color: filler.color,
-            image_link: filler.images?.primary_image || filler.image,
-            price: {
-              value:
-                filler.price?.[pkg.region || this.defaultRegion]?.[
-                  "0_sale_price"
-                ] || 0,
-              currency: this.currency,
-            },
-          });
-        }
-      });
+    if (!pkg.variations || !pkg.variations.color) {
+      return variants;
     }
+
+    pkg.variations.color.forEach((variant) => {
+      // Skip if not available in this region
+      if (!variant.catalog_availability?.[region]) {
+        return;
+      }
+
+      const pricing = this.getPrice(variant, region);
+
+      variants.push({
+        id: variant.sku,
+        color: variant.variation_value || "",
+        image_link: variant.primary_image || variant.image || "",
+        price: {
+          value: pricing.sale_price || pricing.list_price,
+          currency: this.currency,
+        },
+        availability: variant.catalog_availability[region]
+          ? "in_stock"
+          : "out_of_stock",
+      });
+    });
 
     return variants;
   }
@@ -388,9 +376,7 @@ class OpenAIProductMapper {
    * @returns {Object} Complete feed structure
    */
   transformFeed(packages) {
-    const products = packages.map((pkg) =>
-      this.transformPackage(pkg)
-    );
+    const products = packages.map((pkg) => this.transformPackage(pkg));
 
     return {
       version: "1.0",
