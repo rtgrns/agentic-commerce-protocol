@@ -8,7 +8,6 @@ const path = require("path");
 
 // Import routes
 const productsRouter = require("./routes/products");
-const checkoutRouter = require("./routes/checkout");
 const webhooksRouter = require("./routes/webhooks");
 const agenticCheckoutRouter = require("./routes/agentic-checkout");
 const delegatedPaymentRouter = require("./routes/delegated-payment");
@@ -45,9 +44,8 @@ app.get("/health", (req, res) => {
 app.use("/checkout_sessions", agenticCheckoutRouter);
 app.use("/agentic_commerce/delegate_payment", delegatedPaymentRouter);
 
-// Legacy API routes (deprecated, kept for backward compatibility)
+// Product Feed and Webhooks
 app.use("/api/products", productsRouter);
-app.use("/api/checkout", checkoutRouter);
 app.use("/api/webhooks", webhooksRouter);
 
 // Handle 404 - Route not found
@@ -76,7 +74,7 @@ app.listen(PORT, () => {
     `   Product Feed:         http://localhost:${PORT}/api/products/feed`
   );
   console.log(`   Web Interface:        http://localhost:${PORT}/test.html`);
-  console.log(`\n📦 Agentic Checkout Endpoints (OpenAI Spec):`);
+  console.log(`\n📦 Agentic Checkout Endpoints (OpenAI Spec Compliant):`);
   console.log(
     `   Create Session:       POST http://localhost:${PORT}/checkout_sessions`
   );
@@ -96,9 +94,7 @@ app.listen(PORT, () => {
   console.log(
     `   Tokenize Payment:     POST http://localhost:${PORT}/agentic_commerce/delegate_payment`
   );
-  console.log(`\n⚠️  Legacy Endpoints (deprecated):`);
-  console.log(`   /api/checkout/*`);
-  console.log(`\n✨ Agentic Commerce Protocol v1.0`);
+  console.log(`\n✨ Agentic Commerce Protocol v1.0 - Production Ready`);
   console.log(`🔧 Merchant ID: ${process.env.MERCHANT_ID}`);
   console.log(`📋 API Version: ${process.env.API_VERSION || "2025-09-12"}\n`);
 });

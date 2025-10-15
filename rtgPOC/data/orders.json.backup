@@ -1,0 +1,708 @@
+{
+  "checkout_sessions": {},
+  "delegated_tokens": {},
+  "checkouts": {
+    "chk_b3f14ca5-cea4-4336-ac21-138b6a8b4e54": {
+      "checkout_id": "chk_b3f14ca5-cea4-4336-ac21-138b6a8b4e54",
+      "status": "completed",
+      "product": {
+        "id": "prod_001",
+        "name": "Auriculares Bluetooth Pro",
+        "price": 79.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "New York",
+          "country": "USA",
+          "postal_code": "10001"
+        }
+      },
+      "breakdown": {
+        "subtotal": 79.99,
+        "tax": 6.4,
+        "shipping": 5.99,
+        "total": 92.38
+      },
+      "currency": "USD",
+      "available_payment_methods": ["card", "apple_pay", "google_pay"],
+      "created_at": "2025-10-01T19:42:23.773Z",
+      "expires_at": "2025-10-01T20:12:23.773Z",
+      "order_id": "ord_a948deb2-cd31-4b53-90b6-4cb204f321c0",
+      "completed_at": "2025-10-01T19:42:40.662Z"
+    },
+    "chk_4d1a709c-4ec6-40aa-aa13-70b5d86f44b2": {
+      "checkout_id": "chk_4d1a709c-4ec6-40aa-aa13-70b5d86f44b2",
+      "status": "completed",
+      "product": {
+        "id": "prod_001",
+        "name": "Auriculares Bluetooth Pro",
+        "price": 79.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "New York",
+          "country": "USA",
+          "postal_code": "10001"
+        }
+      },
+      "breakdown": {
+        "subtotal": 79.99,
+        "tax": 6.4,
+        "shipping": 5.99,
+        "total": 92.38
+      },
+      "currency": "USD",
+      "available_payment_methods": ["card", "apple_pay", "google_pay"],
+      "created_at": "2025-10-01T20:02:41.009Z",
+      "expires_at": "2025-10-01T20:32:41.008Z",
+      "order_id": "ord_92f2ed41-3ee4-4b26-a518-3ed65ab95dce",
+      "completed_at": "2025-10-01T20:02:47.573Z"
+    },
+    "chk_7f51cc65-246d-4e44-bd4a-82e97ff2d697": {
+      "checkout_id": "chk_7f51cc65-246d-4e44-bd4a-82e97ff2d697",
+      "status": "completed",
+      "product": {
+        "id": "prod_001",
+        "name": "Auriculares Bluetooth Pro",
+        "price": 79.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "New York",
+          "country": "USA",
+          "postal_code": "10001"
+        }
+      },
+      "breakdown": {
+        "subtotal": 79.99,
+        "tax": 6.4,
+        "shipping": 5.99,
+        "total": 92.38
+      },
+      "currency": "USD",
+      "available_payment_methods": ["card", "apple_pay", "google_pay"],
+      "created_at": "2025-10-01T20:29:40.163Z",
+      "expires_at": "2025-10-01T20:59:40.161Z",
+      "order_id": "ord_f65278d2-54bb-4d5f-bfe8-39d542942440",
+      "completed_at": "2025-10-01T20:30:45.171Z"
+    },
+    "chk_4dc3bb15-239e-4a1c-aa78-984a0f64e493": {
+      "checkout_id": "chk_4dc3bb15-239e-4a1c-aa78-984a0f64e493",
+      "status": "initiated",
+      "product": {
+        "id": "prod_001",
+        "name": "Auriculares Bluetooth Pro",
+        "price": 79.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "Test User",
+        "email": "test@example.com"
+      },
+      "breakdown": {
+        "subtotal": 79.99,
+        "tax": 6.4,
+        "shipping": 5.99,
+        "total": 92.38
+      },
+      "currency": "USD",
+      "available_payment_methods": ["card", "apple_pay", "google_pay"],
+      "created_at": "2025-10-15T11:51:47.370Z",
+      "expires_at": "2025-10-15T12:21:47.369Z"
+    },
+    "chk_60955af0-2e82-4ca4-b0b4-593c9d372a30": {
+      "checkout_id": "chk_60955af0-2e82-4ca4-b0b4-593c9d372a30",
+      "status": "completed",
+      "product": {
+        "id": "prod_001",
+        "name": "Auriculares Bluetooth Pro",
+        "price": 79.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "New York",
+          "country": "USA",
+          "postal_code": "10001"
+        }
+      },
+      "breakdown": {
+        "subtotal": 79.99,
+        "tax": 6.4,
+        "shipping": 5.99,
+        "total": 92.38
+      },
+      "currency": "USD",
+      "available_payment_methods": ["card", "apple_pay", "google_pay"],
+      "created_at": "2025-10-15T12:00:49.614Z",
+      "expires_at": "2025-10-15T12:30:49.612Z",
+      "order_id": "ord_9289153f-60c0-4336-af0e-bb7bf0aaa51e",
+      "completed_at": "2025-10-15T12:01:22.418Z"
+    },
+    "chk_26c81889-b1e5-4292-8802-0097bfd50cd5": {
+      "checkout_id": "chk_26c81889-b1e5-4292-8802-0097bfd50cd5",
+      "status": "completed",
+      "product": {
+        "id": "prod_001",
+        "name": "Auriculares Bluetooth Pro",
+        "price": 79.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "New York",
+          "country": "USA",
+          "postal_code": "10001"
+        }
+      },
+      "breakdown": {
+        "subtotal": 79.99,
+        "tax": 6.4,
+        "shipping": 5.99,
+        "total": 92.38
+      },
+      "currency": "USD",
+      "available_payment_methods": ["card", "apple_pay", "google_pay"],
+      "created_at": "2025-10-15T13:39:10.472Z",
+      "expires_at": "2025-10-15T14:09:10.472Z",
+      "order_id": "ord_4a8c8279-02cc-48a1-8297-43f9dabd198c",
+      "completed_at": "2025-10-15T13:39:12.529Z"
+    },
+    "chk_d1b88ed7-13e7-4905-b7f3-c01b56f4f13f": {
+      "checkout_id": "chk_d1b88ed7-13e7-4905-b7f3-c01b56f4f13f",
+      "status": "initiated",
+      "product": {
+        "id": "prod_001",
+        "name": "Auriculares Bluetooth Pro",
+        "price": 79.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "New York",
+          "country": "USA",
+          "postal_code": "10001"
+        }
+      },
+      "breakdown": {
+        "subtotal": 79.99,
+        "tax": 6.4,
+        "shipping": 5.99,
+        "total": 92.38
+      },
+      "currency": "USD",
+      "available_payment_methods": ["card", "apple_pay", "google_pay"],
+      "created_at": "2025-10-15T16:19:42.754Z",
+      "expires_at": "2025-10-15T16:49:42.753Z"
+    },
+    "chk_c8d00dbb-b875-4bdb-bc32-073e1b0a3110": {
+      "checkout_id": "chk_c8d00dbb-b875-4bdb-bc32-073e1b0a3110",
+      "status": "initiated",
+      "product": {
+        "id": "1537992P",
+        "name": "Marquee Cream 5 Pc Leather Triple Power Reclining Living Room",
+        "price": 4999.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "Test User",
+        "email": "test@example.com",
+        "address": {
+          "street": "123 Main St",
+          "city": "Miami",
+          "country": "USA",
+          "postal_code": "33101"
+        }
+      },
+      "breakdown": {
+        "subtotal": 4999.99,
+        "tax": 400,
+        "shipping": 5.99,
+        "total": 5405.98
+      },
+      "currency": "USD",
+      "available_payment_methods": ["card", "apple_pay", "google_pay"],
+      "created_at": "2025-10-15T16:50:35.704Z",
+      "expires_at": "2025-10-15T17:20:35.704Z"
+    },
+    "chk_7885b59c-3ab4-4492-a706-6209663c0604": {
+      "checkout_id": "chk_7885b59c-3ab4-4492-a706-6209663c0604",
+      "status": "completed",
+      "product": {
+        "id": "1537992P",
+        "name": "Marquee Cream 5 Pc Leather Triple Power Reclining Living Room",
+        "price": 4999.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "New York",
+          "country": "USA",
+          "postal_code": "10001"
+        }
+      },
+      "breakdown": {
+        "subtotal": 4999.99,
+        "tax": 400,
+        "shipping": 5.99,
+        "total": 5405.98
+      },
+      "currency": "USD",
+      "available_payment_methods": ["card", "apple_pay", "google_pay"],
+      "created_at": "2025-10-15T16:51:35.178Z",
+      "expires_at": "2025-10-15T17:21:35.178Z",
+      "order_id": "ord_708c3e0f-ddb4-41a7-9d77-406e43e8bfac",
+      "completed_at": "2025-10-15T16:51:47.705Z"
+    },
+    "chk_7b8f9782-ec48-4811-80a7-0676dd16b92c": {
+      "checkout_id": "chk_7b8f9782-ec48-4811-80a7-0676dd16b92c",
+      "status": "initiated",
+      "product": {
+        "id": "1527992P",
+        "name": "Marquee Cream 5 Pc Leather Triple Power Reclining Living Room",
+        "price": 4399.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "Miami",
+          "state": "FL",
+          "country": "USA",
+          "postal_code": "33101"
+        }
+      },
+      "breakdown": {
+        "subtotal": 4399.99,
+        "tax": 352,
+        "shipping": 5.99,
+        "total": 4757.98
+      },
+      "currency": "USD",
+      "available_payment_methods": ["card", "apple_pay", "google_pay"],
+      "created_at": "2025-10-15T19:05:02.971Z",
+      "expires_at": "2025-10-15T19:35:02.971Z"
+    },
+    "chk_d511acfd-00e6-41f9-bd72-51431d05fa46": {
+      "checkout_id": "chk_d511acfd-00e6-41f9-bd72-51431d05fa46",
+      "status": "completed",
+      "product": {
+        "id": "1527992P",
+        "name": "Marquee Cream 5 Pc Leather Triple Power Reclining Living Room",
+        "price": 4399.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "Miami",
+          "state": "FL",
+          "country": "USA",
+          "postal_code": "33101"
+        }
+      },
+      "breakdown": {
+        "subtotal": 4399.99,
+        "tax": 352,
+        "shipping": 5.99,
+        "total": 4757.98
+      },
+      "currency": "USD",
+      "available_payment_methods": ["card", "apple_pay", "google_pay"],
+      "created_at": "2025-10-15T19:07:45.803Z",
+      "expires_at": "2025-10-15T19:37:45.803Z",
+      "order_id": "ord_1b97e735-c324-4fea-b360-45949db39f66",
+      "completed_at": "2025-10-15T19:07:55.210Z"
+    },
+    "chk_559a6d07-d48b-49fd-9cfd-e24fe69fcdc7": {
+      "checkout_id": "chk_559a6d07-d48b-49fd-9cfd-e24fe69fcdc7",
+      "status": "completed",
+      "product": {
+        "id": "1527991P",
+        "name": "Marquee Brown 5 Pc Leather Triple Power Reclining Living Room",
+        "price": 4399.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "Miami",
+          "state": "FL",
+          "country": "USA",
+          "postal_code": "33101"
+        }
+      },
+      "breakdown": {
+        "subtotal": 4399.99,
+        "tax": 352,
+        "shipping": 5.99,
+        "total": 4757.98
+      },
+      "currency": "USD",
+      "available_payment_methods": ["card", "apple_pay", "google_pay"],
+      "created_at": "2025-10-15T19:21:26.588Z",
+      "expires_at": "2025-10-15T19:51:26.588Z",
+      "order_id": "ord_95b43e3a-2696-4db7-8c76-eb52042e60c6",
+      "completed_at": "2025-10-15T19:21:42.281Z"
+    }
+  },
+  "orders": {
+    "ord_a948deb2-cd31-4b53-90b6-4cb204f321c0": {
+      "order_id": "ord_a948deb2-cd31-4b53-90b6-4cb204f321c0",
+      "checkout_id": "chk_b3f14ca5-cea4-4336-ac21-138b6a8b4e54",
+      "status": "confirmed",
+      "confirmation_number": "CONF-G2RM1",
+      "product": {
+        "id": "prod_001",
+        "name": "Auriculares Bluetooth Pro",
+        "price": 79.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "New York",
+          "country": "USA",
+          "postal_code": "10001"
+        }
+      },
+      "payment": {
+        "method": "card",
+        "stripe_payment_intent_id": "pi_3SDVvAJOfZj01iSQ0JeN8R5l",
+        "status": "requires_payment_method"
+      },
+      "breakdown": {
+        "subtotal": 79.99,
+        "tax": 6.4,
+        "shipping": 5.99,
+        "total": 92.38
+      },
+      "total": 92.38,
+      "currency": "USD",
+      "created_at": "2025-10-01T19:42:40.662Z",
+      "estimated_delivery": "2025-10-08T19:42:40.662Z",
+      "tracking_url": "https://tracking.example.com/order/ord_a948deb2-cd31-4b53-90b6-4cb204f321c0"
+    },
+    "ord_92f2ed41-3ee4-4b26-a518-3ed65ab95dce": {
+      "order_id": "ord_92f2ed41-3ee4-4b26-a518-3ed65ab95dce",
+      "checkout_id": "chk_4d1a709c-4ec6-40aa-aa13-70b5d86f44b2",
+      "status": "confirmed",
+      "confirmation_number": "CONF-HK4DA",
+      "product": {
+        "id": "prod_001",
+        "name": "Auriculares Bluetooth Pro",
+        "price": 79.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "New York",
+          "country": "USA",
+          "postal_code": "10001"
+        }
+      },
+      "payment": {
+        "method": "card",
+        "stripe_payment_intent_id": "pi_3SDWEdJOfZj01iSQ2jCaxUqp",
+        "status": "requires_payment_method"
+      },
+      "breakdown": {
+        "subtotal": 79.99,
+        "tax": 6.4,
+        "shipping": 5.99,
+        "total": 92.38
+      },
+      "total": 92.38,
+      "currency": "USD",
+      "created_at": "2025-10-01T20:02:47.573Z",
+      "estimated_delivery": "2025-10-08T20:02:47.573Z",
+      "tracking_url": "https://tracking.example.com/order/ord_92f2ed41-3ee4-4b26-a518-3ed65ab95dce"
+    },
+    "ord_f65278d2-54bb-4d5f-bfe8-39d542942440": {
+      "order_id": "ord_f65278d2-54bb-4d5f-bfe8-39d542942440",
+      "checkout_id": "chk_7f51cc65-246d-4e44-bd4a-82e97ff2d697",
+      "status": "confirmed",
+      "confirmation_number": "CONF-HD9UO",
+      "product": {
+        "id": "prod_001",
+        "name": "Auriculares Bluetooth Pro",
+        "price": 79.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "New York",
+          "country": "USA",
+          "postal_code": "10001"
+        }
+      },
+      "payment": {
+        "method": "card",
+        "stripe_payment_intent_id": "pi_3SDWfhJOfZj01iSQ0uk9VhoC",
+        "status": "requires_payment_method"
+      },
+      "breakdown": {
+        "subtotal": 79.99,
+        "tax": 6.4,
+        "shipping": 5.99,
+        "total": 92.38
+      },
+      "total": 92.38,
+      "currency": "USD",
+      "created_at": "2025-10-01T20:30:45.171Z",
+      "estimated_delivery": "2025-10-08T20:30:45.171Z",
+      "tracking_url": "https://tracking.example.com/order/ord_f65278d2-54bb-4d5f-bfe8-39d542942440"
+    },
+    "ord_9289153f-60c0-4336-af0e-bb7bf0aaa51e": {
+      "order_id": "ord_9289153f-60c0-4336-af0e-bb7bf0aaa51e",
+      "checkout_id": "chk_60955af0-2e82-4ca4-b0b4-593c9d372a30",
+      "status": "confirmed",
+      "confirmation_number": "CONF-I6RYA",
+      "product": {
+        "id": "prod_001",
+        "name": "Auriculares Bluetooth Pro",
+        "price": 79.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "New York",
+          "country": "USA",
+          "postal_code": "10001"
+        }
+      },
+      "payment": {
+        "method": "card",
+        "stripe_payment_intent_id": "pi_3SITOQJOfZj01iSQ0Okpfa3x",
+        "status": "requires_payment_method"
+      },
+      "breakdown": {
+        "subtotal": 79.99,
+        "tax": 6.4,
+        "shipping": 5.99,
+        "total": 92.38
+      },
+      "total": 92.38,
+      "currency": "USD",
+      "created_at": "2025-10-15T12:01:22.418Z",
+      "estimated_delivery": "2025-10-22T12:01:22.418Z",
+      "tracking_url": "https://tracking.example.com/order/ord_9289153f-60c0-4336-af0e-bb7bf0aaa51e"
+    },
+    "ord_4a8c8279-02cc-48a1-8297-43f9dabd198c": {
+      "order_id": "ord_4a8c8279-02cc-48a1-8297-43f9dabd198c",
+      "checkout_id": "chk_26c81889-b1e5-4292-8802-0097bfd50cd5",
+      "status": "confirmed",
+      "confirmation_number": "CONF-XD7G1",
+      "product": {
+        "id": "prod_001",
+        "name": "Auriculares Bluetooth Pro",
+        "price": 79.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "New York",
+          "country": "USA",
+          "postal_code": "10001"
+        }
+      },
+      "payment": {
+        "method": "card",
+        "stripe_payment_intent_id": "pi_3SIUv6JOfZj01iSQ1nEMYzm2",
+        "status": "requires_payment_method"
+      },
+      "breakdown": {
+        "subtotal": 79.99,
+        "tax": 6.4,
+        "shipping": 5.99,
+        "total": 92.38
+      },
+      "total": 92.38,
+      "currency": "USD",
+      "created_at": "2025-10-15T13:39:12.529Z",
+      "estimated_delivery": "2025-10-22T13:39:12.529Z",
+      "tracking_url": "https://tracking.example.com/order/ord_4a8c8279-02cc-48a1-8297-43f9dabd198c"
+    },
+    "ord_708c3e0f-ddb4-41a7-9d77-406e43e8bfac": {
+      "order_id": "ord_708c3e0f-ddb4-41a7-9d77-406e43e8bfac",
+      "checkout_id": "chk_7885b59c-3ab4-4492-a706-6209663c0604",
+      "status": "confirmed",
+      "confirmation_number": "CONF-ETGO7",
+      "product": {
+        "id": "1537992P",
+        "name": "Marquee Cream 5 Pc Leather Triple Power Reclining Living Room",
+        "price": 4999.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "New York",
+          "country": "USA",
+          "postal_code": "10001"
+        }
+      },
+      "payment": {
+        "method": "card",
+        "stripe_payment_intent_id": "pi_3SIXvTJOfZj01iSQ2PKZyQcF",
+        "status": "requires_payment_method"
+      },
+      "breakdown": {
+        "subtotal": 4999.99,
+        "tax": 400,
+        "shipping": 5.99,
+        "total": 5405.98
+      },
+      "total": 5405.98,
+      "currency": "USD",
+      "created_at": "2025-10-15T16:51:47.705Z",
+      "estimated_delivery": "2025-10-22T16:51:47.705Z",
+      "tracking_url": "https://tracking.example.com/order/ord_708c3e0f-ddb4-41a7-9d77-406e43e8bfac"
+    },
+    "ord_1b97e735-c324-4fea-b360-45949db39f66": {
+      "order_id": "ord_1b97e735-c324-4fea-b360-45949db39f66",
+      "checkout_id": "chk_d511acfd-00e6-41f9-bd72-51431d05fa46",
+      "status": "confirmed",
+      "confirmation_number": "CONF-ZP38G",
+      "product": {
+        "id": "1527992P",
+        "name": "Marquee Cream 5 Pc Leather Triple Power Reclining Living Room",
+        "price": 4399.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "Miami",
+          "state": "FL",
+          "country": "USA",
+          "postal_code": "33101"
+        }
+      },
+      "payment": {
+        "method": "card",
+        "stripe_payment_intent_id": "pi_3SIa3DJOfZj01iSQ0Ufi4WJG",
+        "status": "requires_payment_method"
+      },
+      "breakdown": {
+        "subtotal": 4399.99,
+        "tax": 352,
+        "shipping": 5.99,
+        "total": 4757.98
+      },
+      "total": 4757.98,
+      "currency": "USD",
+      "created_at": "2025-10-15T19:07:55.209Z",
+      "estimated_delivery": "2025-10-22T19:07:55.209Z",
+      "tracking_url": "https://tracking.example.com/order/ord_1b97e735-c324-4fea-b360-45949db39f66"
+    },
+    "ord_95b43e3a-2696-4db7-8c76-eb52042e60c6": {
+      "order_id": "ord_95b43e3a-2696-4db7-8c76-eb52042e60c6",
+      "checkout_id": "chk_559a6d07-d48b-49fd-9cfd-e24fe69fcdc7",
+      "status": "confirmed",
+      "confirmation_number": "CONF-EV6PA",
+      "product": {
+        "id": "1527991P",
+        "name": "Marquee Brown 5 Pc Leather Triple Power Reclining Living Room",
+        "price": 4399.99,
+        "currency": "USD"
+      },
+      "quantity": 1,
+      "buyer_info": {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "address": {
+          "street": "123 Main Street",
+          "city": "Miami",
+          "state": "FL",
+          "country": "USA",
+          "postal_code": "33101"
+        }
+      },
+      "payment": {
+        "method": "card",
+        "stripe_payment_intent_id": "pi_3SIaGXJOfZj01iSQ11AhkC3c",
+        "status": "succeeded",
+        "stripe_status": "succeeded"
+      },
+      "breakdown": {
+        "subtotal": 4399.99,
+        "tax": 352,
+        "shipping": 5.99,
+        "total": 4757.98
+      },
+      "total": 4757.98,
+      "currency": "USD",
+      "created_at": "2025-10-15T19:21:42.281Z",
+      "estimated_delivery": "2025-10-22T19:21:42.281Z",
+      "tracking_url": "https://tracking.example.com/order/ord_95b43e3a-2696-4db7-8c76-eb52042e60c6"
+    }
+  }
+}

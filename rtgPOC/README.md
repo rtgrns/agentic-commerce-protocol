@@ -26,7 +26,6 @@ The Agentic Commerce Protocol is an open-source standard developed by OpenAI and
 - ✅ 5 Agentic Checkout endpoints (create, update, complete, cancel, get)
 - ✅ 1 Delegated Payment endpoint (tokenize)
 - ✅ Product feed and search
-- ✅ Legacy endpoints (deprecated, for backward compatibility)
 
 ## 🔧 Prerequisites
 
@@ -115,10 +114,7 @@ The server will start on `http://localhost:3000` with output like:
 💳 Delegated Payment Endpoint:
    Tokenize Payment:     POST http://localhost:3000/agentic_commerce/delegate_payment
 
-⚠️  Legacy Endpoints (deprecated):
-   /api/checkout/*
-
-✨ Agentic Commerce Protocol v1.0
+✨ Agentic Commerce Protocol v1.0 - Production Ready
 🔧 Merchant ID: merchant_rtg
 📋 API Version: 2025-09-12
 ```
@@ -156,13 +152,6 @@ Authorization: Bearer YOUR_API_KEY
 | `/api/products/:id`            | GET    | Get specific product                  |
 | `/api/products/search?q=query` | GET    | Search products                       |
 
-### Legacy Checkout API (Deprecated)
-
-| Endpoint                   | Method | Description                                          |
-| -------------------------- | ------ | ---------------------------------------------------- |
-| `/api/checkout/initiate`   | POST   | ⚠️ Deprecated - Use `/checkout_sessions`              |
-| `/api/checkout/confirm`    | POST   | ⚠️ Deprecated - Use `/checkout_sessions/:id/complete` |
-| `/api/checkout/:id/status` | GET    | ⚠️ Deprecated - Use `/checkout_sessions/:id`          |
 
 ## 📊 Complete Checkout Flow
 
@@ -291,7 +280,6 @@ rtgPOC/
 │   ├── agentic-checkout.js           # Agentic Checkout endpoints
 │   ├── delegated-payment.js          # Delegated Payment endpoint
 │   ├── products.js                   # Product Feed API
-│   ├── checkout.js                   # Legacy checkout (deprecated)
 │   └── webhooks.js                   # Webhook receiver
 ├── services/
 │   ├── CartStateBuilder.js           # Build rich cart state
